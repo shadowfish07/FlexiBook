@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "FlexiBook",
+  "description": "A Better Bookmark Manager",
+  "version": "1.0",
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "vite.svg"
+  },
+  "permissions": ["tabs", "bookmarks", "storage", "unlimitedStorage"],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
