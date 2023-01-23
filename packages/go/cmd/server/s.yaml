@@ -1,0 +1,47 @@
+edition: 1.0.0
+name: FlexiBook
+access: default # set to your own access
+
+vars: # 全局变量
+  region: cn-hongkong
+  service:
+    name: FlexiBook-server
+    description: "FlexiBook-server"
+
+services:
+  FlexiBook-server: # 业务名称/模块名称
+    component: fc
+    actions: # 自定义执行逻辑
+      pre-deploy: # 在deploy之前运行
+        - run: env GOOS=linux go build  -o main . # 要运行的命令行
+          path: ./ # 命令行运行的路径
+    props:
+      region: ${vars.region}
+      service: ${vars.service}
+      function:
+        customRuntimeConfig:
+          command:
+            - ./main
+        memorySize: 128
+        runtime: custom
+        caPort: 8080
+        timeout: 60
+        name: FlexiBook-server
+        asyncConfiguration: {}
+        codeUri: ./main
+      triggers:
+        - name: httpTrigger
+          type: http
+          config:
+            authType: anonymous
+            methods:
+              - GET
+              - POST
+      customDomains:
+        - domainName: auto
+          protocol: HTTP
+          routeConfigs:
+            - path: /*
+              methods:
+                - GET
+                - POST
