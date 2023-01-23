@@ -51,6 +51,7 @@ export const useStorage = <
     ) as StorageData;
 
     setData(finalData).then(() => setIsSaving(false));
+    dataRef.current = finalData;
   };
 
   /**
@@ -71,6 +72,7 @@ export const useStorage = <
     };
 
     setData(finalData).then(() => setIsSaving(false));
+    dataRef.current = finalData;
   };
 
   /**
@@ -98,6 +100,8 @@ export const useStorage = <
       }),
     };
     setData(finalData).then(() => setIsSaving(false));
+    dataRef.current = finalData;
+
   };
 
   const finalData = (

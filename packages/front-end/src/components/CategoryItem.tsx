@@ -1,10 +1,10 @@
 import styled from "styled-components";
 import ReactDOM from "react-dom";
-import { SyntheticEvent, useRef, useState } from "react";
+import React, { SyntheticEvent, useRef, useState } from "react";
 import { EmojiPicker } from "./EmojiPicker";
-import { Input } from "@arco-design/web-react";
+import { Button, Input } from "@arco-design/web-react";
 import { useConfig } from "../hooks";
-import { IconCaretDown } from "@arco-design/web-react/icon";
+import { IconCaretDown, IconPlus } from "@arco-design/web-react/icon";
 
 const StyledCategoryItem = styled.div`
   display: inline-block;
@@ -32,12 +32,16 @@ const StyledCategoryItem = styled.div`
 
 type IsDefault = {
   isDefault: true;
+  category: Config["defaultCategory"];
   onUpdate?: never;
+  onAddSubCategory?: never;
 };
 
 type IsNotDefault = {
+  category: Category | TreeCategory;
   isDefault?: false;
   onUpdate: (id: string, type: "icon" | "title", value: string) => void;
+  onAddSubCategory?: (parentCategory: Category | TreeCategory) => void;
 };
 
 type IsParent = {
@@ -52,8 +56,8 @@ type IsNotParent = {
 
 type Props = {
   id: string;
-  category: Config["defaultCategory"];
   isNew?: boolean;
+  isHovered?: boolean;
 } & (IsDefault | IsNotDefault) &
   (IsParent | IsNotParent);
 
@@ -66,7 +70,9 @@ export const CategoryItem = ({
   onUpdate,
   isDefault,
   isParent,
+  isHovered,
   onToggleFold,
+  onAddSubCategory,
 }: Props) => {
   const ref = useRef<null | HTMLDivElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -130,7 +136,7 @@ export const CategoryItem = ({
 
   return (
     <>
-      <StyledCategoryItem ref={ref}>
+      <StyledCategoryItem ref={ref} data-id={id}>
         {isParent ? (
           <IconCaretDown
             style={{
@@ -168,6 +174,15 @@ export const CategoryItem = ({
             placeholder={isNew ? DEFAULT_NEW_CATEGORY_TITLE : "输入分类名"}
           />
         )}
+        {showAddSubCategoryButton() && (
+          <Button
+            type="text"
+            size="mini"
+            onClick={handleAddSubCategory}
+            className={"no-margin"}
+            icon={<IconPlus />}
+          />
+        )}
       </StyledCategoryItem>
       {showEmojiPicker &&
         ReactDOM.createPortal(
@@ -180,4 +195,14 @@ export const CategoryItem = ({
         )}
     </>
   );
+
+  function handleAddSubCategory(e: Event) {
+    e.stopPropagation();
+    setIsFolding(true);
+    onAddSubCategory && onAddSubCategory(category);
+  }
+
+  function showAddSubCategoryButton() {
+    return isHovered && !isDefault;
+  }
 };

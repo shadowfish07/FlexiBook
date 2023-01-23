@@ -12,6 +12,10 @@ const GlobalMenuStyle = createGlobalStyle`
     background-color: var(--color-fill-2);
   } */
 
+  .no-margin .arco-icon {
+    margin: 0 !important;
+  }
+
   .arco-menu-inline-header {
     text-overflow: unset !important;
   }
@@ -33,6 +37,7 @@ export const SideMenu = () => {
     data: categories,
     updateField,
     updateRecord,
+    selectHelper,
   } = useStorage({
     useKey: "categories",
   });
@@ -43,18 +48,23 @@ export const SideMenu = () => {
   const [selectedKeys, setSelectedKeys] = useState<string[]>([
     "categories-default",
   ]);
+  const [hoveringId, setHoveringId] = useState<string | null>(null);
+
+  const treeCategory = selectHelper.getTreeCategory();
+
+  console.log("treeCategory", treeCategory);
 
   const handleAddCategory = () => {
     setNewCategory(getNewCategoryTemplate());
   };
 
-  const getNewCategoryTemplate = (): Category => {
+  const getNewCategoryTemplate = (parentId?: string): Category => {
     return {
       id: nanoid(),
       title: "",
       icon: "📂",
       deletedAt: undefined,
-      children: [],
+      parentId,
     };
   };
 
@@ -82,17 +92,24 @@ export const SideMenu = () => {
 
   const getCategoryTreeNodes = () => {
     const resultNode: JSX.Element[] = [];
-    const getSubCategoryTreeNodes = (parent: Category) => {
+    const getSubCategoryTreeNodes = (parent: TreeCategory) => {
       const result: JSX.Element[] = [];
 
-      parent.children.forEach((subCategory) => {
-        if (subCategory.children.length === 0) {
+      parent.children?.forEach((subCategory) => {
+        if (!subCategory.children || subCategory.children.length === 0) {
           result.push(
-            <Menu.Item key={subCategory.id}>
+            <Menu.Item
+              key={subCategory.id}
+              data-id={subCategory.id}
+              onMouseEnter={handleMenuItemMouseEnter}
+            >
               <CategoryItem
                 id={subCategory.id}
+                isHovered={hoveringId === subCategory.id}
                 category={subCategory}
                 onUpdate={handleCategoryChange}
+                onAddSubCategory={handleAddSubCategory}
+                isNew={subCategory.title === ""}
               />
             </Menu.Item>
           );
@@ -114,14 +131,19 @@ export const SideMenu = () => {
       return (
         <Menu.SubMenu
           key={`categories-${parent.id}`}
+          data-id={parent.id}
           title={
-            <CategoryItem
-              id={parent.id}
-              category={parent}
-              onUpdate={handleCategoryChange}
-              isParent
-              onToggleFold={handleToggleFold}
-            />
+            <span data-id={parent.id} onMouseEnter={handleMenuItemMouseEnter}>
+              <CategoryItem
+                id={parent.id}
+                category={parent}
+                onAddSubCategory={handleAddSubCategory}
+                onUpdate={handleCategoryChange}
+                isParent
+                onToggleFold={handleToggleFold}
+                isHovered={hoveringId === parent.id}
+              />
+            </span>
           }
           selectable
         >
@@ -130,17 +152,23 @@ export const SideMenu = () => {
       );
     };
 
-    [...categories.entries()].forEach(([id, category]) => {
+    treeCategory.forEach((category) => {
       if (category.deletedAt) {
         return;
       }
-      if (category.children.length === 0) {
+      if (!category.children || category.children.length === 0) {
         resultNode.push(
-          <Menu.Item key={`categories-${id}`}>
+          <Menu.Item
+            key={`categories-${category.id}`}
+            data-id={category.id}
+            onMouseEnter={handleMenuItemMouseEnter}
+          >
             <CategoryItem
-              id={id}
+              id={category.id}
+              isHovered={hoveringId === category.id}
               category={category}
               onUpdate={handleCategoryChange}
+              onAddSubCategory={handleAddSubCategory}
             />
           </Menu.Item>
         );
@@ -165,6 +193,7 @@ export const SideMenu = () => {
         ellipsis={false}
         openKeys={openKeys}
         selectedKeys={selectedKeys}
+        onMouseLeave={handleMenuMouseLeave}
       >
         <StyledSectionHeader>
           <Typography.Text
@@ -181,7 +210,11 @@ export const SideMenu = () => {
           />
         </StyledSectionHeader>
 
-        <Menu.Item key={`categories-default`}>
+        <Menu.Item
+          key={`categories-default`}
+          data-id={"categories-default"}
+          onMouseEnter={handleMenuItemMouseEnter}
+        >
           <CategoryItem
             id={"categories-default"}
             category={config.defaultCategory}
@@ -192,7 +225,11 @@ export const SideMenu = () => {
         {getCategoryTreeNodes()}
 
         {newCategory && (
-          <Menu.Item key={`categories-${newCategory.id}`}>
+          <Menu.Item
+            key={`categories-${newCategory.id}`}
+            data-id={newCategory.id}
+            onMouseEnter={handleMenuItemMouseEnter}
+          >
             <CategoryItem
               id={newCategory.id}
               category={newCategory}
@@ -204,4 +241,28 @@ export const SideMenu = () => {
       </Menu>
     </>
   );
+
+  function handleAddSubCategory(parentCategory: Category | TreeCategory) {
+    const newCategory = getNewCategoryTemplate(parentCategory.id);
+    const newChildren = categories.get(parentCategory.id)?.children || [];
+
+    updateRecord(newCategory.id, newCategory);
+    updateField(
+      parentCategory.id,
+      "children",
+      newChildren.concat(newCategory.id)
+    );
+    if (!openKeys.includes(`categories-${parentCategory.id}`)) {
+      setOpenKeys([...openKeys, `categories-${parentCategory.id}`]);
+    }
+  }
+
+  function handleMenuMouseLeave() {
+    setHoveringId(null);
+  }
+
+  function handleMenuItemMouseEnter(e: React.MouseEvent) {
+    const id = e.currentTarget.getAttribute("data-id");
+    setHoveringId(id);
+  }
 };

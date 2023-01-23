@@ -13,7 +13,7 @@ declare type Category = {
   title: string;
   icon: string;
   deletedAt?: number;
-  children: Category[];
+  children?: string[];
 };
 
 declare type Bookmark = {
@@ -34,9 +34,22 @@ declare type SupportTypeOfStorageData = KeyOfMapType<
 
 declare type KeyOfMapType<T> = T extends Map<infer K, infer V> ? V : never;
 
+// convert a property of a type from a Map to an array
+type MapToArray<T> = {
+  [P in keyof T]: T[P] extends Map<any, infer V>
+    ? V[]
+    : T[P] extends Map<any, infer V> | undefined
+    ? V[] | undefined
+    : T[P];
+};
+
 declare type StorageData = {
   categories: Map<string, Category>;
   bookmarks: Map<string, Bookmark>;
+};
+
+declare type TreeCategory = Omit<Category, "children"> & {
+  children?: TreeCategory[];
 };
 
 declare type JsonStorageData = {

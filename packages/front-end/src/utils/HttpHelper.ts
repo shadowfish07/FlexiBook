@@ -18,7 +18,7 @@ export default class {
     if (!this.validUrl) return null;
     try {
       const result = await fetch(
-        encodeURI(`${this.validUrl}/getWebsiteMeta?url=${url}`)
+        encodeURI(`${this.validUrl}/website/meta?url=${url}`)
       );
       return await result.json();
     } catch (error) {
@@ -31,7 +31,7 @@ export default class {
     if (!this.validUrl) return null;
     try {
       const response = await fetch(
-        encodeURI(`${this.validUrl}/getWebsiteIcon?url=${url}`)
+        encodeURI(`${this.validUrl}/website/icons?url=${url}`)
       );
       if (
         response.status === 200 &&
