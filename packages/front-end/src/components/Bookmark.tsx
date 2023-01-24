@@ -9,8 +9,11 @@ import { useBookmarkLoadState } from "../store/useBookmarkLoadState";
 import { loadBlob } from "../utils";
 import isToday from "dayjs/plugin/isToday";
 import styled from "styled-components";
+import { useDrag } from "react-dnd";
+import { DnDTypes } from "../constants";
 
-const StyledCard = styled(Card)`
+const StyledCard = styled(Card)<{ hide?: boolean }>`
+  display: ${({ hide }) => (hide ? "none" : "block")};
   background: rgba(35, 35, 36, 0.8);
   transition: background-color 0.3s;
 
@@ -33,6 +36,13 @@ export const Bookmark = ({ bookmark }: Props) => {
     state.loadingBookmarks,
   ]);
   const [icon, setIcon] = useState<string | null>(null);
+  const [{ isDragging }, dragRef] = useDrag(() => ({
+    type: DnDTypes.Bookmark,
+    item: { bookmark },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+    }),
+  }));
 
   useEffect(() => {
     if (bookmark.icon) {
@@ -61,6 +71,7 @@ export const Bookmark = ({ bookmark }: Props) => {
 
   return (
     <StyledCard
+      ref={dragRef}
       hoverable
       style={{
         marginBottom: 5,
@@ -68,6 +79,7 @@ export const Bookmark = ({ bookmark }: Props) => {
         backdropFilter: "blur(5px)",
       }}
       onClick={openPage}
+      hide={isDragging}
     >
       <div style={{ display: "flex" }}>
         {loadingBookmarks.has(bookmark.id) ? (

@@ -6,6 +6,9 @@ import { IconPlus } from "@arco-design/web-react/icon";
 import { nanoid } from "nanoid";
 import styled, { createGlobalStyle } from "styled-components";
 import { useSideMenuState } from "../store/useSideMenuState";
+import MenuItem from "./MenuItem";
+import { SubMenu } from "./SubMenu";
+import { DEFAULT_CATEGORY_ID } from "../constants";
 
 const GlobalMenuStyle = createGlobalStyle`
   /* .arco-menu-light .arco-menu-inline-header.arco-menu-selected {
@@ -46,13 +49,11 @@ export const SideMenu = () => {
   const setSelect = useSideMenuState((state) => state.setSelect);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([
-    "categories-default",
+    DEFAULT_CATEGORY_ID,
   ]);
   const [hoveringId, setHoveringId] = useState<string | null>(null);
 
   const treeCategory = selectHelper.getTreeCategory();
-
-  console.log("treeCategory", treeCategory);
 
   const handleAddCategory = () => {
     setNewCategory(getNewCategoryTemplate());
@@ -98,20 +99,23 @@ export const SideMenu = () => {
       parent.children?.forEach((subCategory) => {
         if (!subCategory.children || subCategory.children.length === 0) {
           result.push(
-            <Menu.Item
-              key={subCategory.id}
-              data-id={subCategory.id}
-              onMouseEnter={handleMenuItemMouseEnter}
-            >
-              <CategoryItem
-                id={subCategory.id}
-                isHovered={hoveringId === subCategory.id}
-                category={subCategory}
-                onUpdate={handleCategoryChange}
-                onAddSubCategory={handleAddSubCategory}
-                isNew={subCategory.title === ""}
-              />
-            </Menu.Item>
+            // TODO: 复用withDrop的方案，但由于arco design的问题，暂无法使用
+            // <MenuItem
+            //   hoveringId={hoveringId}
+            //   category={subCategory}
+            //   isNew={subCategory.title === ""}
+            //   onMenuItemMouseEnter={handleMenuItemMouseEnter}
+            //   onCategoryItemUpdate={handleCategoryChange}
+            //   onAddSubCategory={handleAddSubCategory}
+            // />
+            MenuItem({
+              hoveringId: hoveringId,
+              category: subCategory,
+              isNew: subCategory.title === "",
+              onMenuItemMouseEnter: handleMenuItemMouseEnter,
+              onCategoryItemUpdate: handleCategoryChange,
+              onAddSubCategory: handleAddSubCategory,
+            })
           );
           return;
         }
@@ -129,26 +133,26 @@ export const SideMenu = () => {
       };
 
       return (
-        <Menu.SubMenu
-          key={`categories-${parent.id}`}
-          data-id={parent.id}
-          title={
-            <span data-id={parent.id} onMouseEnter={handleMenuItemMouseEnter}>
-              <CategoryItem
-                id={parent.id}
-                category={parent}
-                onAddSubCategory={handleAddSubCategory}
-                onUpdate={handleCategoryChange}
-                isParent
-                onToggleFold={handleToggleFold}
-                isHovered={hoveringId === parent.id}
-              />
-            </span>
-          }
-          selectable
-        >
-          {result}
-        </Menu.SubMenu>
+        // TODO: 复用withDrop的方案，但由于arco design的问题，暂无法使用
+        // <SubMenu
+        //   hoveringId={hoveringId}
+        //   category={parent}
+        //   onToggleFold={handleToggleFold}
+        //   onMenuItemMouseEnter={handleMenuItemMouseEnter}
+        //   onCategoryItemUpdate={handleCategoryChange}
+        //   onAddSubCategory={handleAddSubCategory}
+        // >
+        //   {result}
+        // </SubMenu>
+        SubMenu({
+          hoveringId: hoveringId,
+          category: parent,
+          onToggleFold: handleToggleFold,
+          onMenuItemMouseEnter: handleMenuItemMouseEnter,
+          onCategoryItemUpdate: handleCategoryChange,
+          onAddSubCategory: handleAddSubCategory,
+          children: result,
+        })
       );
     };
 
@@ -158,19 +162,21 @@ export const SideMenu = () => {
       }
       if (!category.children || category.children.length === 0) {
         resultNode.push(
-          <Menu.Item
-            key={`categories-${category.id}`}
-            data-id={category.id}
-            onMouseEnter={handleMenuItemMouseEnter}
-          >
-            <CategoryItem
-              id={category.id}
-              isHovered={hoveringId === category.id}
-              category={category}
-              onUpdate={handleCategoryChange}
-              onAddSubCategory={handleAddSubCategory}
-            />
-          </Menu.Item>
+          // TODO: 复用withDrop的方案，但由于arco design的问题，暂无法使用
+          // <MenuItem
+          //   hoveringId={hoveringId}
+          //   category={category}
+          //   onMenuItemMouseEnter={handleMenuItemMouseEnter}
+          //   onCategoryItemUpdate={handleCategoryChange}
+          //   onAddSubCategory={handleAddSubCategory}
+          // />
+          MenuItem({
+            hoveringId: hoveringId,
+            category: category,
+            onMenuItemMouseEnter: handleMenuItemMouseEnter,
+            onCategoryItemUpdate: handleCategoryChange,
+            onAddSubCategory: handleAddSubCategory,
+          })
         );
         return;
       }
@@ -210,7 +216,14 @@ export const SideMenu = () => {
           />
         </StyledSectionHeader>
 
-        <Menu.Item
+        {MenuItem({
+          hoveringId: hoveringId,
+          isDefault: true,
+          category: config.defaultCategory,
+          onMenuItemMouseEnter: handleMenuItemMouseEnter,
+        })}
+
+        {/* <Menu.Item
           key={`categories-default`}
           data-id={"categories-default"}
           onMouseEnter={handleMenuItemMouseEnter}
@@ -220,7 +233,7 @@ export const SideMenu = () => {
             category={config.defaultCategory}
             isDefault
           />
-        </Menu.Item>
+        </Menu.Item> */}
 
         {getCategoryTreeNodes()}
 
@@ -228,7 +241,7 @@ export const SideMenu = () => {
           <Menu.Item
             key={`categories-${newCategory.id}`}
             data-id={newCategory.id}
-            onMouseEnter={handleMenuItemMouseEnter}
+            onMouseOver={handleMenuItemMouseEnter}
           >
             <CategoryItem
               id={newCategory.id}
@@ -262,6 +275,7 @@ export const SideMenu = () => {
   }
 
   function handleMenuItemMouseEnter(e: React.MouseEvent) {
+    e.stopPropagation();
     const id = e.currentTarget.getAttribute("data-id");
     setHoveringId(id);
   }

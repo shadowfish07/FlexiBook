@@ -1,8 +1,10 @@
 import { useEffect, useLayoutEffect, useState } from "react";
+import { DndProvider } from "react-dnd";
 import { SavingContext } from "./main";
 import { WebApp } from "./pages";
 import { useConfigState } from "./store/useConfigState";
 import { useDataState } from "./store/useDataState";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 function App() {
   const openNewPage = () => {
@@ -32,9 +34,11 @@ function App() {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <SavingContext.Provider value={{ isSaving, setIsSaving }}>
-      <WebApp />
-    </SavingContext.Provider>
+    <DndProvider backend={HTML5Backend}>
+      <SavingContext.Provider value={{ isSaving, setIsSaving }}>
+        <WebApp />
+      </SavingContext.Provider>
+    </DndProvider>
   );
 }
 

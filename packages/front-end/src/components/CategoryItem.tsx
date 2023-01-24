@@ -1,12 +1,19 @@
 import styled from "styled-components";
 import ReactDOM from "react-dom";
-import React, { SyntheticEvent, useRef, useState } from "react";
+import React, {
+  forwardRef,
+  SyntheticEvent,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react";
 import { EmojiPicker } from "./EmojiPicker";
 import { Button, Input } from "@arco-design/web-react";
 import { useConfig } from "../hooks";
 import { IconCaretDown, IconPlus } from "@arco-design/web-react/icon";
+import { withDrop } from "../hoc/withDrop";
 
-const StyledCategoryItem = styled.div`
+const StyledCategoryItem = styled.div<{ isDraggingOver?: boolean }>`
   display: inline-block;
 
   .readonly {
@@ -58,6 +65,7 @@ type Props = {
   id: string;
   isNew?: boolean;
   isHovered?: boolean;
+  isDraggingOver?: boolean;
 } & (IsDefault | IsNotDefault) &
   (IsParent | IsNotParent);
 
@@ -71,10 +79,11 @@ export const CategoryItem = ({
   isDefault,
   isParent,
   isHovered,
+  isDraggingOver,
   onToggleFold,
   onAddSubCategory,
 }: Props) => {
-  const ref = useRef<null | HTMLDivElement>(null);
+  const itemRef = useRef<null | HTMLDivElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(isNew);
   const [title, setTitle] = useState(category.title);
@@ -82,15 +91,15 @@ export const CategoryItem = ({
   const [isFolding, setIsFolding] = useState(false);
 
   const getElementPosition = () => {
-    if (!ref.current) {
+    if (!itemRef.current) {
       return {
         x: 0,
         y: 0,
       };
     }
     return {
-      x: ref.current.getBoundingClientRect().x + 20,
-      y: ref.current.getBoundingClientRect().y + 20,
+      x: itemRef.current.getBoundingClientRect().x + 20,
+      y: itemRef.current.getBoundingClientRect().y + 20,
     };
   };
 
@@ -136,7 +145,11 @@ export const CategoryItem = ({
 
   return (
     <>
-      <StyledCategoryItem ref={ref} data-id={id}>
+      <StyledCategoryItem
+        ref={itemRef}
+        data-id={id}
+        isDraggingOver={isDraggingOver}
+      >
         {isParent ? (
           <IconCaretDown
             style={{
