@@ -116,7 +116,6 @@ export const SubMenu = ({
         data-type="SubMenu"
         title={
           <CategoryItem
-            id={category.id}
             category={category}
             onAddSubCategory={onAddSubCategory}
             onUpdate={onCategoryItemUpdate}

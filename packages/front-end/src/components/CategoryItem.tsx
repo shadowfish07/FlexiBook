@@ -12,6 +12,7 @@ import { Button, Input } from "@arco-design/web-react";
 import { useConfig } from "../hooks";
 import { IconCaretDown, IconPlus } from "@arco-design/web-react/icon";
 import { withDrop } from "../hoc/withDrop";
+import { DEFAULT_CATEGORY_ID } from "../constants";
 
 const StyledCategoryItem = styled.div<{ isDraggingOver?: boolean }>`
   display: inline-block;
@@ -62,8 +63,6 @@ type IsNotParent = {
 };
 
 type Props = {
-  id: string;
-  isNew?: boolean;
   isHovered?: boolean;
   isDraggingOver?: boolean;
 } & (IsDefault | IsNotDefault) &
@@ -72,9 +71,7 @@ type Props = {
 const DEFAULT_NEW_CATEGORY_TITLE = "新建分类";
 
 export const CategoryItem = ({
-  id,
   category,
-  isNew = false,
   onUpdate,
   isDefault,
   isParent,
@@ -83,12 +80,16 @@ export const CategoryItem = ({
   onToggleFold,
   onAddSubCategory,
 }: Props) => {
+  const isNew = category.title === "";
+
   const itemRef = useRef<null | HTMLDivElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(isNew);
   const [title, setTitle] = useState(category.title);
   const { config, updateConfigByKey } = useConfig();
   const [isFolding, setIsFolding] = useState(false);
+
+  const categoryId = isDefault ? DEFAULT_CATEGORY_ID : category.id;
 
   const getElementPosition = () => {
     if (!itemRef.current) {
@@ -118,7 +119,7 @@ export const CategoryItem = ({
   const saveTitle = () => {
     setIsEditingTitle(false);
     const finalTitle = isNew && !title ? DEFAULT_NEW_CATEGORY_TITLE : title;
-    onUpdate!(id, "title", finalTitle);
+    onUpdate!(categoryId, "title", finalTitle);
   };
 
   const handleInput = (value: string) => {
@@ -134,7 +135,7 @@ export const CategoryItem = ({
       });
       return;
     }
-    onUpdate(id, "icon", native);
+    onUpdate(categoryId, "icon", native);
   };
 
   const handleToggleFold = (e: SyntheticEvent) => {
@@ -147,7 +148,7 @@ export const CategoryItem = ({
     <>
       <StyledCategoryItem
         ref={itemRef}
-        data-id={id}
+        data-id={categoryId}
         isDraggingOver={isDraggingOver}
       >
         {isParent ? (

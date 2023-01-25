@@ -33,7 +33,6 @@ type IsNotDefault = {
 
 type Props = {
   hoveringId: string | null;
-  isNew?: boolean;
   isParent?: boolean;
   onMenuItemMouseEnter: (e: React.MouseEvent) => void;
 } & (IsDefault | IsNotDefault);
@@ -86,7 +85,6 @@ type RefHandle = {
 export default function MenuItem({
   hoveringId,
   category,
-  isNew,
   isParent,
   isDefault,
   onCategoryItemUpdate,
@@ -94,7 +92,6 @@ export default function MenuItem({
   onAddSubCategory,
 }: Props) {
   const { updateField } = useStorage({ useKey: "bookmarks" });
-  const categoryId = isDefault ? DEFAULT_CATEGORY_ID : category.id;
   const categoryKey = isDefault
     ? DEFAULT_CATEGORY_KEY
     : `categories-${category.id}`;
@@ -127,12 +124,10 @@ export default function MenuItem({
         onMouseOver={onMenuItemMouseEnter}
       >
         <CategoryItem
-          id={categoryId}
           isHovered={hoveringId === categoryKey}
           category={category as any}
           onUpdate={onCategoryItemUpdate as any}
           onAddSubCategory={onAddSubCategory as any}
-          isNew={isNew}
           isParent={isParent as any}
           isDefault={isDefault as any}
           isDraggingOver={isDraggingOver}

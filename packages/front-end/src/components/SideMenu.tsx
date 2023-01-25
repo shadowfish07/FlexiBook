@@ -44,7 +44,6 @@ export const SideMenu = () => {
   } = useStorage({
     useKey: "categories",
   });
-  const [newCategory, setNewCategory] = useState<null | Category>(null);
   const { config } = useConfig();
   const setSelect = useSideMenuState((state) => state.setSelect);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
@@ -56,7 +55,6 @@ export const SideMenu = () => {
   const treeCategory = selectHelper.getTreeCategory();
 
   const handleAddCategory = () => {
-    // setNewCategory(getNewCategoryTemplate());
     const newCategory = getNewCategoryTemplate();
     updateRecord(newCategory.id, newCategory);
   };
@@ -97,24 +95,15 @@ export const SideMenu = () => {
       parent.children?.forEach((subCategory) => {
         if (!subCategory.children || subCategory.children.length === 0) {
           result.push(
-            // TODO: 复用withDrop的方案，但由于arco design的问题，暂无法使用
+            // TODO: 复用withDrop的方案
             <MenuItem
               key={subCategory.id}
               hoveringId={hoveringId}
               category={subCategory}
-              isNew={subCategory.title === ""}
               onMenuItemMouseEnter={handleMenuItemMouseEnter}
               onCategoryItemUpdate={handleCategoryChange}
               onAddSubCategory={handleAddSubCategory}
             />
-            // MenuItem({
-            //   hoveringId: hoveringId,
-            //   category: subCategory,
-            //   isNew: subCategory.title === "",
-            //   onMenuItemMouseEnter: handleMenuItemMouseEnter,
-            //   onCategoryItemUpdate: handleCategoryChange,
-            //   onAddSubCategory: handleAddSubCategory,
-            // })
           );
           return;
         }
@@ -132,7 +121,6 @@ export const SideMenu = () => {
       };
 
       return (
-        // TODO: 复用withDrop的方案，但由于arco design的问题，暂无法使用
         <SubMenu
           key={parent.id}
           hoveringId={hoveringId}
@@ -144,15 +132,6 @@ export const SideMenu = () => {
         >
           {result}
         </SubMenu>
-        // SubMenu({
-        //   hoveringId: hoveringId,
-        //   category: parent,
-        //   onToggleFold: handleToggleFold,
-        //   onMenuItemMouseEnter: handleMenuItemMouseEnter,
-        //   onCategoryItemUpdate: handleCategoryChange,
-        //   onAddSubCategory: handleAddSubCategory,
-        //   children: result,
-        // })
       );
     };
 
@@ -167,18 +146,10 @@ export const SideMenu = () => {
             key={category.id}
             hoveringId={hoveringId}
             category={category}
-            isNew={category.title === ""}
             onMenuItemMouseEnter={handleMenuItemMouseEnter}
             onCategoryItemUpdate={handleCategoryChange}
             onAddSubCategory={handleAddSubCategory}
           />
-          // MenuItem({
-          //   hoveringId: hoveringId,
-          //   category: category,
-          //   onMenuItemMouseEnter: handleMenuItemMouseEnter,
-          //   onCategoryItemUpdate: handleCategoryChange,
-          //   onAddSubCategory: handleAddSubCategory,
-          // })
         );
         return;
       }
@@ -218,13 +189,6 @@ export const SideMenu = () => {
           />
         </StyledSectionHeader>
 
-        {/* {MenuItem({
-          hoveringId: hoveringId,
-          isDefault: true,
-          category: config.defaultCategory,
-          onMenuItemMouseEnter: handleMenuItemMouseEnter,
-        })} */}
-
         <MenuItem
           key={DEFAULT_CATEGORY_KEY}
           hoveringId={hoveringId}
@@ -232,35 +196,8 @@ export const SideMenu = () => {
           category={config.defaultCategory}
           onMenuItemMouseEnter={handleMenuItemMouseEnter}
         />
-        {/* 
-        <Menu.Item
-          key={`categories-default`}
-          data-id={"categories-default"}
-          onMouseEnter={handleMenuItemMouseEnter}
-        >
-          <CategoryItem
-            id={"categories-default"}
-            category={config.defaultCategory}
-            isDefault
-          />
-        </Menu.Item> */}
 
         {getCategoryTreeNodes()}
-
-        {newCategory && (
-          <Menu.Item
-            key={`categories-${newCategory.id}`}
-            data-id={newCategory.id}
-            onMouseOver={handleMenuItemMouseEnter}
-          >
-            <CategoryItem
-              id={newCategory.id}
-              category={newCategory}
-              isNew
-              onUpdate={handleCategoryChange}
-            />
-          </Menu.Item>
-        )}
       </Menu>
     </>
   );
