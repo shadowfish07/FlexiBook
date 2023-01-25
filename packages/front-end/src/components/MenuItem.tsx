@@ -1,9 +1,13 @@
 import { Menu } from "@arco-design/web-react";
 import classNames from "classnames";
-import { forwardRef, useImperativeHandle } from "react";
+import { forwardRef, Fragment, useImperativeHandle } from "react";
 import { useDrop } from "react-dnd";
 import styled from "styled-components";
-import { DEFAULT_CATEGORY_ID, DnDTypes } from "../constants";
+import {
+  DEFAULT_CATEGORY_ID,
+  DEFAULT_CATEGORY_KEY,
+  DnDTypes,
+} from "../constants";
 import { withDrop } from "../hoc/withDrop";
 import { useStorage } from "../hooks";
 import { CategoryItem } from "./CategoryItem";
@@ -91,17 +95,23 @@ export default function MenuItem({
 }: Props) {
   const { updateField } = useStorage({ useKey: "bookmarks" });
   const categoryId = isDefault ? DEFAULT_CATEGORY_ID : category.id;
+  const categoryKey = isDefault
+    ? DEFAULT_CATEGORY_KEY
+    : `categories-${category.id}`;
 
-  const [{ isDraggingOver }, dropRef] = useDrop(() => ({
-    accept: DnDTypes.Bookmark,
-    drop: (item: Bookmark) => {
-      console.log("handleDrop", categoryId);
-      updateField(item.id, "category", categoryId);
-    },
-    collect: (monitor) => ({
-      isDraggingOver: !!monitor.isOver({ shallow: true }),
+  const [{ isDraggingOver }, dropRef] = useDrop(
+    () => ({
+      accept: DnDTypes.Bookmark,
+      drop: (item: Bookmark) => {
+        console.log("handleDrop", item);
+        updateField(item.id, "category", categoryKey);
+      },
+      collect: (monitor) => ({
+        isDraggingOver: !!monitor.isOver({ shallow: true }),
+      }),
     }),
-  }));
+    [updateField]
+  );
 
   return (
     <StyledMenuItem
@@ -109,14 +119,16 @@ export default function MenuItem({
       ref={dropRef}
     >
       <Menu.Item
-        key={categoryId}
-        data-id={categoryId}
+        level={(category as TreeCategory).level ?? 1}
+        key={categoryKey}
+        _key={categoryKey}
+        data-id={categoryKey}
         data-type="Item"
         onMouseOver={onMenuItemMouseEnter}
       >
         <CategoryItem
           id={categoryId}
-          isHovered={hoveringId === categoryId}
+          isHovered={hoveringId === categoryKey}
           category={category as any}
           onUpdate={onCategoryItemUpdate as any}
           onAddSubCategory={onAddSubCategory as any}
@@ -129,3 +141,6 @@ export default function MenuItem({
     </StyledMenuItem>
   );
 }
+
+MenuItem.displayName = "MenuItem";
+MenuItem.menuType = "MenuItem";

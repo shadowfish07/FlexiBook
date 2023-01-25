@@ -86,25 +86,31 @@ export const SubMenu = ({
   onCategoryItemUpdate,
 }: Props) => {
   const { updateField } = useStorage({ useKey: "bookmarks" });
-  const [{ isDraggingOver }, dropRef] = useDrop(() => ({
-    accept: DnDTypes.Bookmark,
-    drop: (item: Bookmark) => {
-      console.log("handleDrop", category.id);
-      updateField(item.id, "category", category.id);
-    },
-    collect: (monitor) => ({
-      isDraggingOver: !!monitor.isOver({ shallow: true }),
+  const [{ isDraggingOver }, dropRef] = useDrop(
+    () => ({
+      accept: DnDTypes.Bookmark,
+      drop: (item: Bookmark) => {
+        console.log("handleDrop", category.id);
+        updateField(item.id, "category", category.id);
+      },
+      collect: (monitor) => ({
+        isDraggingOver: !!monitor.isOver({ shallow: true }),
+      }),
     }),
-  }));
+    [updateField]
+  );
 
   return (
     <StyledMenuItem
       className={classNames({ "is-dragging": isDraggingOver })}
       ref={dropRef}
+      key={`categories-${category.id}`}
       data-id={category.id}
       onMouseOver={onMenuItemMouseEnter}
     >
       <Menu.SubMenu
+        level={(category as TreeCategory).level ?? 1}
+        _key={`categories-${category.id}`}
         key={`categories-${category.id}`}
         data-id={category.id}
         data-type="SubMenu"
@@ -126,3 +132,6 @@ export const SubMenu = ({
     </StyledMenuItem>
   );
 };
+
+SubMenu.displayName = "SubMenu";
+SubMenu.menuType = "SubMenu";

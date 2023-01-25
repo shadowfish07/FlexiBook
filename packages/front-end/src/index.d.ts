@@ -50,6 +50,7 @@ declare type StorageData = {
 
 declare type TreeCategory = Omit<Category, "children"> & {
   children?: TreeCategory[];
+  level: number;
 };
 
 declare type JsonStorageData = {

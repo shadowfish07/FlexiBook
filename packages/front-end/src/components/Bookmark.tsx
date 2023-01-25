@@ -38,7 +38,7 @@ export const Bookmark = ({ bookmark }: Props) => {
   const [icon, setIcon] = useState<string | null>(null);
   const [{ isDragging }, dragRef] = useDrag(() => ({
     type: DnDTypes.Bookmark,
-    item: { bookmark },
+    item: bookmark,
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging(),
     }),

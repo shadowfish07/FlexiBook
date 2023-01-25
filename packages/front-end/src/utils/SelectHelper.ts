@@ -9,15 +9,19 @@ export default class {
   }
 
   getTreeCategory(): TreeCategory[] {
-    const convertChildCategory = (id: string): TreeCategory | undefined => {
+    const convertChildCategory = (
+      id: string,
+      level: number
+    ): TreeCategory | undefined => {
       const category = this.data.categories.get(id);
 
       if (!category) return undefined;
 
       return {
         ...category,
+        level,
         children: category.children
-          ?.map((id) => convertChildCategory(id))
+          ?.map((id) => convertChildCategory(id, level + 1))
           .filter(Boolean) as TreeCategory[],
       };
     };
@@ -27,8 +31,9 @@ export default class {
       .map((item) => {
         return {
           ...item,
+          level: 1,
           children: item.children
-            ?.map((id) => convertChildCategory(id))
+            ?.map((id) => convertChildCategory(id, 2))
             .filter(Boolean) as TreeCategory[],
         };
       });

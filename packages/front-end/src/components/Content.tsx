@@ -1,11 +1,10 @@
 import { Empty } from "@arco-design/web-react";
 import Content from "@arco-design/web-react/es/Layout/content";
-import { memo, useContext } from "react";
 import { useStorage } from "../hooks";
 import { useSideMenuState } from "../store/useSideMenuState";
 import { Bookmark } from "./Bookmark";
 
-export default memo(() => {
+export default () => {
   const { data: bookmarks } = useStorage({ useKey: "bookmarks" });
   const [selectedId, selectedType] = useSideMenuState((state) => [
     state.selectedId,
@@ -30,4 +29,4 @@ export default memo(() => {
       )}
     </Content>
   );
-});
+};

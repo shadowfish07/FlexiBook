@@ -8,7 +8,7 @@ import styled, { createGlobalStyle } from "styled-components";
 import { useSideMenuState } from "../store/useSideMenuState";
 import MenuItem from "./MenuItem";
 import { SubMenu } from "./SubMenu";
-import { DEFAULT_CATEGORY_ID } from "../constants";
+import { DEFAULT_CATEGORY_KEY } from "../constants";
 
 const GlobalMenuStyle = createGlobalStyle`
   /* .arco-menu-light .arco-menu-inline-header.arco-menu-selected {
@@ -49,14 +49,16 @@ export const SideMenu = () => {
   const setSelect = useSideMenuState((state) => state.setSelect);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<string[]>([
-    DEFAULT_CATEGORY_ID,
+    DEFAULT_CATEGORY_KEY,
   ]);
   const [hoveringId, setHoveringId] = useState<string | null>(null);
 
   const treeCategory = selectHelper.getTreeCategory();
 
   const handleAddCategory = () => {
-    setNewCategory(getNewCategoryTemplate());
+    // setNewCategory(getNewCategoryTemplate());
+    const newCategory = getNewCategoryTemplate();
+    updateRecord(newCategory.id, newCategory);
   };
 
   const getNewCategoryTemplate = (parentId?: string): Category => {
@@ -75,11 +77,7 @@ export const SideMenu = () => {
     value: string
   ) => {
     if (!categories.has(id)) {
-      updateRecord(id, {
-        ...(newCategory as Category),
-        [type]: value,
-      });
-      setNewCategory(null);
+      console.warn("category not found", id);
       return;
     }
 
@@ -100,22 +98,23 @@ export const SideMenu = () => {
         if (!subCategory.children || subCategory.children.length === 0) {
           result.push(
             // TODO: 复用withDrop的方案，但由于arco design的问题，暂无法使用
-            // <MenuItem
-            //   hoveringId={hoveringId}
-            //   category={subCategory}
-            //   isNew={subCategory.title === ""}
-            //   onMenuItemMouseEnter={handleMenuItemMouseEnter}
-            //   onCategoryItemUpdate={handleCategoryChange}
-            //   onAddSubCategory={handleAddSubCategory}
-            // />
-            MenuItem({
-              hoveringId: hoveringId,
-              category: subCategory,
-              isNew: subCategory.title === "",
-              onMenuItemMouseEnter: handleMenuItemMouseEnter,
-              onCategoryItemUpdate: handleCategoryChange,
-              onAddSubCategory: handleAddSubCategory,
-            })
+            <MenuItem
+              key={subCategory.id}
+              hoveringId={hoveringId}
+              category={subCategory}
+              isNew={subCategory.title === ""}
+              onMenuItemMouseEnter={handleMenuItemMouseEnter}
+              onCategoryItemUpdate={handleCategoryChange}
+              onAddSubCategory={handleAddSubCategory}
+            />
+            // MenuItem({
+            //   hoveringId: hoveringId,
+            //   category: subCategory,
+            //   isNew: subCategory.title === "",
+            //   onMenuItemMouseEnter: handleMenuItemMouseEnter,
+            //   onCategoryItemUpdate: handleCategoryChange,
+            //   onAddSubCategory: handleAddSubCategory,
+            // })
           );
           return;
         }
@@ -134,25 +133,26 @@ export const SideMenu = () => {
 
       return (
         // TODO: 复用withDrop的方案，但由于arco design的问题，暂无法使用
-        // <SubMenu
-        //   hoveringId={hoveringId}
-        //   category={parent}
-        //   onToggleFold={handleToggleFold}
-        //   onMenuItemMouseEnter={handleMenuItemMouseEnter}
-        //   onCategoryItemUpdate={handleCategoryChange}
-        //   onAddSubCategory={handleAddSubCategory}
-        // >
-        //   {result}
-        // </SubMenu>
-        SubMenu({
-          hoveringId: hoveringId,
-          category: parent,
-          onToggleFold: handleToggleFold,
-          onMenuItemMouseEnter: handleMenuItemMouseEnter,
-          onCategoryItemUpdate: handleCategoryChange,
-          onAddSubCategory: handleAddSubCategory,
-          children: result,
-        })
+        <SubMenu
+          key={parent.id}
+          hoveringId={hoveringId}
+          category={parent}
+          onToggleFold={handleToggleFold}
+          onMenuItemMouseEnter={handleMenuItemMouseEnter}
+          onCategoryItemUpdate={handleCategoryChange}
+          onAddSubCategory={handleAddSubCategory}
+        >
+          {result}
+        </SubMenu>
+        // SubMenu({
+        //   hoveringId: hoveringId,
+        //   category: parent,
+        //   onToggleFold: handleToggleFold,
+        //   onMenuItemMouseEnter: handleMenuItemMouseEnter,
+        //   onCategoryItemUpdate: handleCategoryChange,
+        //   onAddSubCategory: handleAddSubCategory,
+        //   children: result,
+        // })
       );
     };
 
@@ -163,20 +163,22 @@ export const SideMenu = () => {
       if (!category.children || category.children.length === 0) {
         resultNode.push(
           // TODO: 复用withDrop的方案，但由于arco design的问题，暂无法使用
-          // <MenuItem
-          //   hoveringId={hoveringId}
-          //   category={category}
-          //   onMenuItemMouseEnter={handleMenuItemMouseEnter}
-          //   onCategoryItemUpdate={handleCategoryChange}
-          //   onAddSubCategory={handleAddSubCategory}
-          // />
-          MenuItem({
-            hoveringId: hoveringId,
-            category: category,
-            onMenuItemMouseEnter: handleMenuItemMouseEnter,
-            onCategoryItemUpdate: handleCategoryChange,
-            onAddSubCategory: handleAddSubCategory,
-          })
+          <MenuItem
+            key={category.id}
+            hoveringId={hoveringId}
+            category={category}
+            isNew={category.title === ""}
+            onMenuItemMouseEnter={handleMenuItemMouseEnter}
+            onCategoryItemUpdate={handleCategoryChange}
+            onAddSubCategory={handleAddSubCategory}
+          />
+          // MenuItem({
+          //   hoveringId: hoveringId,
+          //   category: category,
+          //   onMenuItemMouseEnter: handleMenuItemMouseEnter,
+          //   onCategoryItemUpdate: handleCategoryChange,
+          //   onAddSubCategory: handleAddSubCategory,
+          // })
         );
         return;
       }
@@ -216,14 +218,22 @@ export const SideMenu = () => {
           />
         </StyledSectionHeader>
 
-        {MenuItem({
+        {/* {MenuItem({
           hoveringId: hoveringId,
           isDefault: true,
           category: config.defaultCategory,
           onMenuItemMouseEnter: handleMenuItemMouseEnter,
-        })}
+        })} */}
 
-        {/* <Menu.Item
+        <MenuItem
+          key={DEFAULT_CATEGORY_KEY}
+          hoveringId={hoveringId}
+          isDefault
+          category={config.defaultCategory}
+          onMenuItemMouseEnter={handleMenuItemMouseEnter}
+        />
+        {/* 
+        <Menu.Item
           key={`categories-default`}
           data-id={"categories-default"}
           onMouseEnter={handleMenuItemMouseEnter}
