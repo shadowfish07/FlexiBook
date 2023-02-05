@@ -15,10 +15,6 @@ const GlobalMenuStyle = createGlobalStyle`
     background-color: var(--color-fill-2);
   } */
 
-  .no-margin .arco-icon {
-    margin: 0 !important;
-  }
-
   .arco-menu-inline-header {
     text-overflow: unset !important;
   }

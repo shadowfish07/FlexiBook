@@ -36,6 +36,10 @@ const StyledCategoryItem = styled.div<{ isDraggingOver?: boolean }>`
   .title {
     user-select: none;
   }
+
+  .add-sub-button .arco-icon {
+    margin: 0 !important;
+  }
 `;
 
 type IsDefault = {
@@ -193,7 +197,7 @@ export const CategoryItem = ({
             type="text"
             size="mini"
             onClick={handleAddSubCategory}
-            className={"no-margin"}
+            className={"add-sub-button"}
             icon={<IconPlus />}
           />
         )}
