@@ -77,7 +77,7 @@ export const AddBookmark = () => {
     httpHelper
       .getMetaOfWebsite(urlWithProtocol)
       .then((res) => {
-        if (res.title && res.title.length > 0)
+        if (res?.title && res.title.length > 0)
           updateField(id, "title", res.title);
       })
       .catch((err) => {

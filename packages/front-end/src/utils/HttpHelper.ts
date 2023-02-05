@@ -1,8 +1,8 @@
 export default class {
   private validUrl: string | null;
   constructor(private config: Config) {
-    this.validUrl = config.backendURL
-      ? this.getValidUrl(config.backendURL)
+    this.validUrl = this.config.backendURL
+      ? this.getValidUrl(this.config.backendURL)
       : null;
   }
 
@@ -14,17 +14,21 @@ export default class {
     return url;
   }
 
-  public async getMetaOfWebsite(url: string) {
-    if (!this.validUrl) return null;
-    try {
-      const result = await fetch(
-        encodeURI(`${this.validUrl}/website/meta?url=${url}`)
-      );
-      return await result.json();
-    } catch (error) {
-      console.log(error);
-      throw new Error("获取网站信息失败");
-    }
+  public async getMetaOfWebsite(
+    url: string
+  ): Promise<{ title: string; description: string } | null> {
+    return new Promise(async (resolve, reject) => {
+      if (!this.validUrl) resolve(null);
+      try {
+        const result = await fetch(
+          encodeURI(`${this.validUrl}/website/meta?url=${url}`)
+        );
+        resolve(result.json());
+      } catch (error) {
+        console.log(error);
+        reject(new Error("获取网站信息失败"));
+      }
+    });
   }
 
   public async getIconOfWebsite(url: string) {
