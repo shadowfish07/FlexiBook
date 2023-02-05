@@ -4,6 +4,7 @@ import {
   Input,
   Message,
   Popover,
+  Space,
   Typography,
 } from "@arco-design/web-react";
 import { IconPlus } from "@arco-design/web-react/icon";
@@ -19,7 +20,6 @@ import { saveBlob } from "../utils";
 const StyledContent = styled.div`
   .button {
     margin-left: auto;
-    margin-top: 10px;
     display: block;
   }
 `;
@@ -108,24 +108,30 @@ export const AddBookmark = () => {
       style={{ width: 300 }}
       content={
         <StyledContent>
-          <Typography.Text>URL</Typography.Text>
-          <Input
-            value={url}
-            onChange={handleUrlChange}
-            placeholder="http://"
-            onPressEnter={handleUrlChange}
-          />
-          {!config.backendURL && (
-            <Alert type="warning" content="配置后端地址后可自动读取站点信息" />
-          )}
-          <Button
-            disabled={!isButtonEnable}
-            type="primary"
-            className="button"
-            onClick={handleSave}
-          >
-            保存
-          </Button>
+          <Space direction="vertical">
+            <Typography.Text>URL</Typography.Text>
+            <Input
+              value={url}
+              onChange={handleUrlChange}
+              placeholder="http://"
+              onPressEnter={handleUrlChange}
+            />
+            {!config.backendURL && (
+              <Alert
+                type="warning"
+                content="配置后端地址后可自动读取站点信息"
+              />
+            )}
+
+            <Button
+              disabled={!isButtonEnable}
+              type="primary"
+              className="button"
+              onClick={handleSave}
+            >
+              保存
+            </Button>
+          </Space>
         </StyledContent>
       }
     >
