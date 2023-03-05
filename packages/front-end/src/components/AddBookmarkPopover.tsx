@@ -109,38 +109,7 @@ export const AddBookmarkPopover = () => {
       onVisibleChange={(visible) => setVisible(visible)}
       trigger="click"
       style={{ width: 330 }}
-      content={
-        <AddBookmark onSave={() => setVisible(false)} />
-        // <StyledContent>
-        //   <Space direction="vertical">
-        //     <Typography.Text>URL</Typography.Text>
-        //     <Input
-        //       value={url}
-        //       onChange={handleUrlChange}
-        //       placeholder="http://"
-        //       onPressEnter={handleUrlChange}
-        //     />
-        //     {!config.backendURL && (
-        //       <Alert
-        //         type="warning"
-        //         content="配置后端地址后可自动读取站点信息"
-        //       />
-        //     )}
-
-        //     <Space className="footer">
-        //       <Button type="text">打开管理页</Button>
-        //       <Button
-        //         disabled={!isButtonEnable}
-        //         type="primary"
-        //         className="button"
-        //         onClick={handleSave}
-        //       >
-        //         保存
-        //       </Button>
-        //     </Space>
-        //   </Space>
-        // </StyledContent>
-      }
+      content={<AddBookmark onSave={() => setVisible(false)} />}
     >
       <Button type="primary" icon={<IconPlus />}>
         添加
