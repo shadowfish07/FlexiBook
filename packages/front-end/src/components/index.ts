@@ -5,6 +5,7 @@ export { default as Header } from "./Header";
 export { default as Content } from "./Content";
 export { Bookmark } from "./Bookmark";
 export { CategoryInfo } from "./CategoryInfo";
+export { AddBookmarkPopover } from "./AddBookmarkPopover";
 export { AddBookmark } from "./AddBookmark";
 export { Config } from "./Config";
 export { BookmarkDescriptionItem } from "./BookmarkDescriptionItem";

@@ -1,42 +1,58 @@
 import {
-  Alert,
-  Button,
-  Input,
   Message,
-  Popover,
   Space,
   Typography,
+  Input,
+  Alert,
+  Button,
+  TreeSelect,
+  TreeSelectProps,
 } from "@arco-design/web-react";
-import { IconPlus } from "@arco-design/web-react/icon";
 import { nanoid } from "nanoid";
 import parseUrl from "parse-url";
-import { useContext, useEffect, useState } from "react";
+import { useState } from "react";
 import styled from "styled-components";
+import { DEFAULT_CATEGORY_ID } from "../constants";
 import { useConfig, useStorage } from "../hooks";
 import { useBookmarkLoadState } from "../store/useBookmarkLoadState";
-import { useSideMenuState } from "../store/useSideMenuState";
 import { saveBlob } from "../utils";
 
 const StyledContent = styled.div`
-  .button {
-    margin-left: auto;
-    display: block;
+  .footer {
+    display: flex;
+    justify-content: flex-end;
   }
 `;
 
-export const AddBookmark = () => {
-  const [visible, setVisible] = useState(false);
-  const [url, setUrl] = useState("");
-  const { updateRecord, updateField } = useStorage({ useKey: "bookmarks" });
+type Props = {
+  fromExtension?: boolean;
+  onSave?: (id: string) => void;
+};
+
+export const AddBookmark = ({ fromExtension, onSave }: Props) => {
   const { config, httpHelper } = useConfig();
+  const [url, setUrl] = useState("");
+  const [isButtonEnable, setIsButtonEnable] = useState(false);
+  const { updateRecord, updateField, selectHelper } = useStorage({
+    useKey: "bookmarks",
+  });
   const [addLoadingBookmarks, removeLoadingBookmarks] = useBookmarkLoadState(
     (state) => [state.addLoadingBookmarks, state.removeLoadingBookmarks]
   );
-  const [isButtonEnable, setIsButtonEnable] = useState(false);
-  const [selectedId, selectedType] = useSideMenuState((state) => [
-    state.selectedId,
-    state.selectedType,
-  ]);
+  const [selectedCategory, setSelectedCategory] = useState<{
+    label: React.ReactNode;
+    value: string;
+    disabled?: boolean | undefined;
+  }>({
+    value: DEFAULT_CATEGORY_ID,
+    label: (
+      <span>{selectHelper.selectCategory(DEFAULT_CATEGORY_ID)?.title}</span>
+    ),
+  });
+
+  const categoryTreeData: NonNullable<TreeSelectProps["treeData"]> = [
+    { key: DEFAULT_CATEGORY_ID, title: config.defaultCategory.title },
+  ].concat(transformTreeData(selectHelper.getTreeCategory()) as any);
 
   const handleUrlChange = (url: string) => {
     setUrl(url);
@@ -69,10 +85,13 @@ export const AddBookmark = () => {
       title: hostname,
       createdAt: new Date().getTime(),
       deletedAt: undefined,
-      category: selectedType === "categories" ? selectedId : undefined,
+      category: selectedCategory.value,
     });
-    setVisible(false);
     setUrl("");
+    setIsButtonEnable(false);
+
+    onSave && onSave(id);
+
     addLoadingBookmarks(id);
     httpHelper
       .getMetaOfWebsite(urlWithProtocol)
@@ -93,51 +112,68 @@ export const AddBookmark = () => {
     });
   };
 
-  useEffect(() => {
-    return () => {
-      setUrl("");
-    };
-  }, []);
+  const handleOpenDashboard = () => {
+    window.open("index.html?page=dashboard");
+  };
 
   return (
-    <Popover
-      position="bl"
-      popupVisible={visible}
-      onVisibleChange={(visible) => setVisible(visible)}
-      trigger="click"
-      style={{ width: 300 }}
-      content={
-        <StyledContent>
-          <Space direction="vertical">
-            <Typography.Text>URL</Typography.Text>
-            <Input
-              value={url}
-              onChange={handleUrlChange}
-              placeholder="http://"
-              onPressEnter={handleUrlChange}
-            />
-            {!config.backendURL && (
-              <Alert
-                type="warning"
-                content="配置后端地址后可自动读取站点信息"
-              />
-            )}
+    <StyledContent>
+      <Space direction="vertical" style={{ width: "100%" }}>
+        <Typography.Text>URL</Typography.Text>
+        <Input
+          value={url}
+          onChange={handleUrlChange}
+          placeholder="http://"
+          onPressEnter={handleUrlChange}
+        />
 
-            <Button
-              disabled={!isButtonEnable}
-              type="primary"
-              className="button"
-              onClick={handleSave}
-            >
-              保存
+        <Typography.Text>分类</Typography.Text>
+        <TreeSelect
+          labelInValue
+          treeData={categoryTreeData}
+          value={selectedCategory}
+          onChange={(v) => {
+            setSelectedCategory({
+              value: v.value,
+              label: <span>{v.label}</span>,
+            });
+          }}
+        />
+
+        {!config.backendURL && (
+          <Alert type="warning" content="配置后端地址后可自动读取站点信息" />
+        )}
+
+        <Space className="footer">
+          {fromExtension && (
+            <Button type="text" onClick={handleOpenDashboard}>
+              打开管理页
             </Button>
-          </Space>
-        </StyledContent>
-      }
-    >
-      <Button type="primary" icon={<IconPlus />}>
-        添加
-      </Button>
-    </Popover>
+          )}
+          <Button
+            disabled={!isButtonEnable}
+            type="primary"
+            className="button"
+            onClick={handleSave}
+          >
+            保存
+          </Button>
+        </Space>
+      </Space>
+    </StyledContent>
   );
 };
+
+function transformTreeData(
+  treeData: TreeCategory[]
+): NonNullable<TreeSelectProps["treeData"]> {
+  return treeData.map((item) => {
+    const { children, title, id: key } = item;
+    return {
+      title,
+      key,
+      children:
+        children && children.length > 0 ? transformTreeData(children) : [],
+    };
+  });
+}

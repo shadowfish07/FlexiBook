@@ -2,6 +2,7 @@ import { useEffect, useContext, useRef } from "react";
 import { SavingContext } from "../main";
 import { useDataState } from "../store/useDataState";
 import { SelectHelper } from "../utils";
+import { useConfig } from "./useConfig";
 
 type Props<T extends keyof StorageData | StorageData = StorageData> = {
   useKey?: T;
@@ -33,6 +34,7 @@ export const useStorage = <
   const [data, setData] = useDataState((state) => [state.data, state.setData]);
   const { isSaving, setIsSaving } = useContext(SavingContext);
   const dataRef = useRef<StorageData>(data);
+  const { config } = useConfig();
 
   useEffect(() => {
     dataRef.current = data;
@@ -101,7 +103,6 @@ export const useStorage = <
     };
     setData(finalData).then(() => setIsSaving(false));
     dataRef.current = finalData;
-
   };
 
   const finalData = (
@@ -114,6 +115,6 @@ export const useStorage = <
     updateData,
     updateRecord,
     isSaving,
-    selectHelper: new SelectHelper(data),
+    selectHelper: new SelectHelper(data, config),
   };
 };

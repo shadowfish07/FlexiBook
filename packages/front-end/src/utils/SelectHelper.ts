@@ -1,11 +1,13 @@
-export default class {
-  constructor(private data: StorageData) {}
+import { DEFAULT_CATEGORY_ID } from "../constants";
 
-  selectCategory(id: string, parentId?: string): Category | undefined {
-    if (!parentId) return this.data.categories.get(id) ?? undefined;
-    const parent = this.data.categories.get(parentId);
-    if (!parent) return undefined;
-    return this.selectCategory(parent.id, parent.parentId);
+export default class {
+  constructor(private data: StorageData, private config: Config | undefined) {}
+
+  selectCategory(id: string): Category | undefined {
+    if (id === DEFAULT_CATEGORY_ID)
+      if (this.config)
+        return { id: DEFAULT_CATEGORY_ID, ...this.config.defaultCategory };
+    return this.data.categories.get(id) ?? undefined;
   }
 
   getTreeCategory(): TreeCategory[] {

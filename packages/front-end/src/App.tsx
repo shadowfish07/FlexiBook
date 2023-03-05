@@ -5,6 +5,7 @@ import { WebApp } from "./pages";
 import { useConfigState } from "./store/useConfigState";
 import { useDataState } from "./store/useDataState";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { Extension } from "./pages/Extension";
 
 function App() {
   const openNewPage = () => {
@@ -33,10 +34,13 @@ function App() {
   // TODO 传入App，内部支持骨架屏渲染
   if (loading) return <div>Loading...</div>;
 
+  const params = new URLSearchParams(window.location.search);
+  const page = params.get("page");
+
   return (
     <DndProvider backend={HTML5Backend}>
       <SavingContext.Provider value={{ isSaving, setIsSaving }}>
-        <WebApp />
+        {page === "dashboard" ? <WebApp /> : <Extension />}
       </SavingContext.Provider>
     </DndProvider>
   );

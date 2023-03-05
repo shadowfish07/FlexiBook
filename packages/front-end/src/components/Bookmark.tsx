@@ -28,10 +28,7 @@ type Props = {
 
 export const Bookmark = ({ bookmark }: Props) => {
   const { selectHelper } = useStorage({ useKey: "categories" });
-  const category = selectHelper.selectCategory(
-    bookmark.category!,
-    bookmark.parentCategory
-  );
+  const category = selectHelper.selectCategory(bookmark.category!);
   const [loadingBookmarks] = useBookmarkLoadState((state) => [
     state.loadingBookmarks,
   ]);

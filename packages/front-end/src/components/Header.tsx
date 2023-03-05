@@ -2,7 +2,7 @@ import { Button, Popover, Space } from "@arco-design/web-react";
 import Header from "@arco-design/web-react/es/Layout/header";
 import { IconSettings } from "@arco-design/web-react/icon";
 import { memo, useContext, useState } from "react";
-import { AddBookmark, Config } from ".";
+import { AddBookmarkPopover, Config } from ".";
 import { SavingContext } from "../main";
 
 export default memo(() => {
@@ -27,7 +27,7 @@ export default memo(() => {
           )}
         />
 
-        <AddBookmark />
+        <AddBookmarkPopover />
       </Space>
     </Header>
   );
