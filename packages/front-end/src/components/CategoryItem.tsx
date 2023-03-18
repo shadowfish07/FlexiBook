@@ -15,7 +15,7 @@ import { withDrop } from "../hoc/withDrop";
 import { DEFAULT_CATEGORY_ID } from "../constants";
 import { CaretDown } from "./CaretDown";
 
-const StyledCategoryItem = styled.div<{ isDraggingOver?: boolean }>`
+const StyledCategoryItem = styled.div`
   display: inline-block;
 
   .readonly {
@@ -69,7 +69,6 @@ type IsNotParent = {
 
 type Props = {
   isHovered?: boolean;
-  isDraggingOver?: boolean;
 } & (IsDefault | IsNotDefault) &
   (IsParent | IsNotParent);
 
@@ -81,7 +80,6 @@ export const CategoryItem = ({
   isDefault,
   isParent,
   isHovered,
-  isDraggingOver,
   onToggleFold,
   onAddSubCategory,
 }: Props) => {
@@ -149,11 +147,7 @@ export const CategoryItem = ({
 
   return (
     <>
-      <StyledCategoryItem
-        ref={itemRef}
-        data-id={categoryId}
-        isDraggingOver={isDraggingOver}
-      >
+      <StyledCategoryItem ref={itemRef} data-id={categoryId}>
         <CaretDown
           isFolding={isFolding}
           isParent={isParent}

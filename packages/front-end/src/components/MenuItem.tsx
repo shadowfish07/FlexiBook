@@ -108,7 +108,6 @@ export default function MenuItem({
             onAddSubCategory={onAddSubCategory as any}
             isParent={isParent as any}
             isDefault={isDefault as any}
-            isDraggingOver={isDraggingOver}
           />
         </Menu.Item>
       )}
