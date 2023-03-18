@@ -44,9 +44,10 @@ export const Bookmark = ({ bookmark }: Props) => {
         isDragging: !!monitor.isDragging(),
       }),
       end(item, monitor) {
-        if (monitor.getDropResult()?.type === "category")
+        if (monitor.getDropResult()?.type === "category") {
           updateField(item.id, "category", monitor.getDropResult()?.id);
-        Message.success("成功移动书签到：" + monitor.getDropResult()?.title);
+          Message.success("成功移动书签到：" + monitor.getDropResult()?.title);
+        }
       },
     })
   );
