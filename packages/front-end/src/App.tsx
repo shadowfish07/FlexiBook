@@ -8,12 +8,6 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import { Extension } from "./pages/Extension";
 
 function App() {
-  const openNewPage = () => {
-    chrome.tabs.create({
-      url: "index.html?aa=1",
-    });
-  };
-
   const [loading, setLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 

@@ -1,9 +1,9 @@
 import { Card, Image, Typography } from "@arco-design/web-react";
-import { IconCommon, IconLoading } from "@arco-design/web-react/icon";
+import { IconCommon, IconLoading, IconTag } from "@arco-design/web-react/icon";
 import dayjs from "dayjs";
 import parseUrl from "parse-url";
 import { useEffect, useState } from "react";
-import { BookmarkDescriptionItem, CategoryInfo } from ".";
+import { AddBookmarkPopover, BookmarkDescriptionItem, CategoryInfo } from ".";
 import { useStorage } from "../hooks";
 import { useBookmarkLoadState } from "../store/useBookmarkLoadState";
 import { loadBlob } from "../utils";
@@ -11,6 +11,8 @@ import isToday from "dayjs/plugin/isToday";
 import styled from "styled-components";
 import { useDrag } from "react-dnd";
 import { DnDTypes } from "../constants";
+import { AddTagPopover } from "./AddTagPopover";
+import { Tag } from "./Tag";
 
 const StyledCard = styled(Card)<{ hide?: boolean }>`
   display: ${({ hide }) => (hide ? "none" : "block")};
@@ -66,6 +68,15 @@ export const Bookmark = ({ bookmark }: Props) => {
     });
   };
 
+  const renderTags = () => {
+    if (!bookmark.tags) {
+      return null;
+    }
+    return bookmark.tags.map((tag) => {
+      return <Tag tag={selectHelper.selectTag(tag)!} />;
+    });
+  };
+
   return (
     <StyledCard
       ref={dragRef}
@@ -97,6 +108,10 @@ export const Bookmark = ({ bookmark }: Props) => {
             {parseUrl(bookmark.url).resource}
           </BookmarkDescriptionItem>
           <BookmarkDescriptionItem>{getFormatDate()}</BookmarkDescriptionItem>
+          <BookmarkDescriptionItem>
+            {renderTags()}
+            <AddTagPopover bookmarkId={bookmark.id} />
+          </BookmarkDescriptionItem>
         </div>
       </div>
     </StyledCard>

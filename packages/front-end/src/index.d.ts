@@ -7,22 +7,34 @@ declare type Emoji = {
   unified: string;
 };
 
+declare type ID = string;
+
+declare type Tag = {
+  id: ID;
+  name: string;
+  color: string;
+  deletedAt?: number;
+  parentId?: ID;
+  children?: ID[]; // 暂不支持嵌套
+};
+
 declare type Category = {
-  id: string;
-  parentId?: string;
+  id: ID;
+  parentId?: ID;
   title: string;
   icon: string;
   deletedAt?: number;
-  children?: string[];
+  children?: ID[];
 };
 
 declare type Bookmark = {
-  id: string;
+  id: ID;
   title: string;
   url: string;
+  tags?: ID[];
   deletedAt?: number;
   createdAt: number;
-  category?: string;
+  category?: ID;
   parentCategory?: string;
   icon?: string;
   isFavorite?: boolean;
@@ -44,6 +56,7 @@ type MapToArray<T> = {
 };
 
 declare type StorageData = {
+  tags: Map<string, Tag>;
   categories: Map<string, Category>;
   bookmarks: Map<string, Bookmark>;
 };

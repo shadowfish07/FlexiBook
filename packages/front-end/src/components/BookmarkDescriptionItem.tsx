@@ -19,6 +19,8 @@ type Props = {
 
 export const BookmarkDescriptionItem = ({ children }: Props) => {
   return (
-    <StyledBookmarkDescriptionItem>{children}</StyledBookmarkDescriptionItem>
+    <StyledBookmarkDescriptionItem onClick={(e) => e.stopPropagation()}>
+      {children}
+    </StyledBookmarkDescriptionItem>
   );
 };

@@ -6,10 +6,17 @@ type DataState = {
   loadLocalData: () => Promise<StorageData>;
 };
 
+const patchJsonDataForOldVersion = (jsonData: JsonStorageData) => {
+  if (!jsonData.tags) {
+    jsonData.tags = [];
+  }
+};
+
 const initLocalData = async () => {
   const initData: StorageData = {
     categories: new Map<string, Category>(),
     bookmarks: new Map<string, Bookmark>(),
+    tags: new Map<string, Tag>(),
   };
 
   await writeLocalData(initData);
@@ -23,6 +30,8 @@ const loadLocalData = async () => {
     console.log("init data");
     jsonData = await initLocalData();
   }
+
+  patchJsonDataForOldVersion(jsonData);
 
   const dataMap = {} as StorageData;
 
@@ -44,10 +53,12 @@ const writeLocalData = async (data: StorageData) => {
   const finalData: JsonStorageData = {
     categories: [] as any,
     bookmarks: [] as any,
+    tags: [] as any,
   };
 
   finalData.bookmarks = [...data.bookmarks.values()];
   finalData.categories = [...data.categories.values()];
+  finalData.tags = [...data.tags.values()];
 
   console.log("writeData", finalData);
   await chrome.storage.local.set({ data: finalData });

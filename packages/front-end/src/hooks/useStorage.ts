@@ -1,7 +1,9 @@
+import { nanoid } from "nanoid";
 import { useEffect, useContext, useRef } from "react";
 import { SavingContext } from "../main";
 import { useDataState } from "../store/useDataState";
 import { SelectHelper } from "../utils";
+import UpdateHelper from "../utils/UpdateHelper";
 import { useConfig } from "./useConfig";
 
 type Props<T extends keyof StorageData | StorageData = StorageData> = {
@@ -10,7 +12,11 @@ type Props<T extends keyof StorageData | StorageData = StorageData> = {
 
 type execType<T> = T extends keyof StorageData ? StorageData[T] : T;
 
-export type UseStorageReturnType<T> = {
+type ID = string;
+
+export type UseStorageReturnType<
+  T extends keyof StorageData | StorageData = StorageData
+> = {
   data: execType<T>;
   updateField: <P extends FieldType<T>>(
     id: string,
@@ -19,8 +25,10 @@ export type UseStorageReturnType<T> = {
   ) => void;
   updateData: (newData: execType<T>) => void;
   updateRecord: (id: string, value: KeyOfMapType<execType<T>>) => void;
+  createRecord: (value: Omit<KeyOfMapType<execType<T>>, "id">) => ID;
   isSaving: boolean;
   selectHelper: SelectHelper;
+  updateHelper: UpdateHelper;
 };
 
 type FieldType<T> = keyof KeyOfMapType<execType<T>>;
@@ -105,6 +113,12 @@ export const useStorage = <
     dataRef.current = finalData;
   };
 
+  const createRecord = (value: Omit<KeyOfMapType<execType<T>>, "id">) => {
+    const id = nanoid();
+    updateRecord(id, { ...value, id } as KeyOfMapType<execType<T>>);
+    return id;
+  };
+
   const finalData = (
     useKey ? data[useKey as keyof StorageData] : data
   ) as execType<T>;
@@ -114,7 +128,9 @@ export const useStorage = <
     updateField,
     updateData,
     updateRecord,
+    createRecord,
     isSaving,
     selectHelper: new SelectHelper(data, config),
+    updateHelper: new UpdateHelper(data, config, useKey, updateField),
   };
 };
