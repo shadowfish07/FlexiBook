@@ -182,11 +182,7 @@ export function AddTag({ bookmarkId, onSave }: Props) {
 
     const tag = selectHelper.selectTag(id);
     return (
-      <AcroTag
-        closable
-        onClose={onClose}
-        style={{ marginRight: 5, marginBottom: 5 }}
-      >
+      <AcroTag closable onClose={onClose} style={{ margin: 5 }}>
         <Tag key={id} tag={tag!}></Tag>
       </AcroTag>
     );
