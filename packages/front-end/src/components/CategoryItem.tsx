@@ -1,26 +1,16 @@
 import styled from "styled-components";
 import ReactDOM from "react-dom";
-import React, {
-  forwardRef,
-  SyntheticEvent,
-  useImperativeHandle,
-  useRef,
-  useState,
-} from "react";
+import { useRef, useState } from "react";
 import { EmojiPicker } from "./EmojiPicker";
-import { Button, Input } from "@arco-design/web-react";
+import { Button } from "@arco-design/web-react";
 import { useConfig } from "../hooks";
-import { IconCaretDown, IconPlus } from "@arco-design/web-react/icon";
-import { withDrop } from "../hoc/withDrop";
+import { IconPlus } from "@arco-design/web-react/icon";
 import { DEFAULT_CATEGORY_ID } from "../constants";
 import { CaretDown } from "./CaretDown";
+import { InPlaceInput } from "./InPlaceInput";
 
 const StyledCategoryItem = styled.div`
   display: inline-block;
-
-  .readonly {
-    pointer-events: none;
-  }
 
   .icon {
     user-select: none;
@@ -87,8 +77,6 @@ export const CategoryItem = ({
 
   const itemRef = useRef<null | HTMLDivElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [isEditingTitle, setIsEditingTitle] = useState(isNew);
-  const [title, setTitle] = useState(category.title);
   const { config, updateConfigByKey } = useConfig();
   const [isFolding, setIsFolding] = useState(false);
 
@@ -115,18 +103,9 @@ export const CategoryItem = ({
     setShowEmojiPicker(true);
   };
 
-  const showTitleEditor = () => {
-    setIsEditingTitle(true);
-  };
-
-  const saveTitle = () => {
-    setIsEditingTitle(false);
-    const finalTitle = isNew && !title ? DEFAULT_NEW_CATEGORY_TITLE : title;
+  const handleSaveTitle = (value: string) => {
+    const finalTitle = isNew && !value ? DEFAULT_NEW_CATEGORY_TITLE : value;
     onUpdate!(categoryId, "title", finalTitle);
-  };
-
-  const handleInput = (value: string) => {
-    setTitle(value);
   };
 
   const handleSelectEmoji = ({ native }: Emoji) => {
@@ -157,25 +136,16 @@ export const CategoryItem = ({
         <span className={`icon`} onClick={handleClickEmoji}>
           {category.icon}
         </span>
-        {!isEditingTitle && (
-          <span
-            className={`title ${isDefault ? "readonly" : ""}`}
-            onDoubleClick={showTitleEditor}
-          >
-            {category.title}
-          </span>
-        )}
-        {isEditingTitle && (
-          <Input
-            value={title}
-            onChange={handleInput}
-            autoFocus
-            onBlur={saveTitle}
-            onPressEnter={saveTitle}
-            style={{ width: "calc(100% - 35px)" }}
-            placeholder={isNew ? DEFAULT_NEW_CATEGORY_TITLE : "输入分类名"}
-          />
-        )}
+
+        <InPlaceInput
+          text={category.title}
+          placeholder={isNew ? DEFAULT_NEW_CATEGORY_TITLE : "输入分类名"}
+          isReadOnly={isDefault}
+          defaultStatus={isNew}
+          onSave={handleSaveTitle}
+          textClassName="title"
+        />
+
         {showAddSubCategoryButton() && (
           <Button
             type="text"

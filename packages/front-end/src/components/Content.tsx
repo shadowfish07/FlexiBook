@@ -15,6 +15,8 @@ export default () => {
     if (selectedType === "categories") {
       if (selectedId === "default") return true;
       return bookmark.category === selectedId;
+    } else if (selectedType === "tags") {
+      return bookmark.tags?.includes(selectedId);
     }
   });
 

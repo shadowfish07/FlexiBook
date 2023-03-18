@@ -5,6 +5,7 @@ import { DnDTypes } from "../constants";
 import { useStorage } from "../hooks";
 import { CategoryItem } from "./CategoryItem";
 import { StyledMenuItem } from "./StyledMenuItem";
+import { TagItem } from "./TagItem";
 
 type isTag = {
   tag: Tag;
@@ -92,6 +93,21 @@ export const SubMenu = ({
               isHovered={hoveringId === id}
             />
           }
+          selectable
+        >
+          {children}
+        </Menu.SubMenu>
+      )}
+
+      {tag && (
+        // 目前还不支持 Tag 的子菜单，后续支持后这里需要加isParent
+        <Menu.SubMenu
+          level={(tag as TreeOf<Tag>).level ?? 1}
+          _key={key}
+          key={key}
+          data-id={id}
+          data-type="SubMenu"
+          title={<TagItem tag={tag} />}
           selectable
         >
           {children}

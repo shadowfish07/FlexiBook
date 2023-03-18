@@ -6,6 +6,7 @@ import { DEFAULT_CATEGORY_KEY, DnDTypes } from "../constants";
 import { useStorage } from "../hooks";
 import { CategoryItem } from "./CategoryItem";
 import { StyledMenuItem } from "./StyledMenuItem";
+import { TagItem } from "./TagItem";
 
 type IsDefault = {
   isDefault: true;
@@ -109,6 +110,18 @@ export default function MenuItem({
             isParent={isParent as any}
             isDefault={isDefault as any}
           />
+        </Menu.Item>
+      )}
+      {tag && (
+        <Menu.Item
+          level={(tag as TreeOf<Tag>).level ?? 1}
+          key={key}
+          _key={key}
+          data-id={key}
+          data-type="Item"
+          onMouseOver={onMenuItemMouseEnter}
+        >
+          <TagItem tag={tag} />
         </Menu.Item>
       )}
     </StyledMenuItem>
