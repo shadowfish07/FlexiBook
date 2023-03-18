@@ -52,7 +52,7 @@ export const AddBookmark = ({ fromExtension, onSave }: Props) => {
 
   const categoryTreeData: NonNullable<TreeSelectProps["treeData"]> = [
     { key: DEFAULT_CATEGORY_ID, title: config.defaultCategory.title },
-  ].concat(transformTreeData(selectHelper.getTreeCategory()) as any);
+  ].concat(transformTreeData(selectHelper.getTreeOf("categories")) as any);
 
   const handleUrlChange = (url: string) => {
     setUrl(url);
@@ -164,8 +164,8 @@ export const AddBookmark = ({ fromExtension, onSave }: Props) => {
   );
 };
 
-function transformTreeData(
-  treeData: TreeCategory[]
+function transformTreeData<T extends Category | Tag>(
+  treeData: TreeOf<T>[]
 ): NonNullable<TreeSelectProps["treeData"]> {
   return treeData.map((item) => {
     const { children, title, id: key } = item;

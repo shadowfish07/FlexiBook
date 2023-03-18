@@ -26,7 +26,7 @@ export const Tag = ({ tag, onClick }: Props) => {
   return (
     <StyledTag color={tag.color} onClick={() => onClick && onClick(tag)}>
       <span className="color" />
-      <span className="name">{tag.name}</span>
+      <span className="name">{tag.title}</span>
     </StyledTag>
   );
 };

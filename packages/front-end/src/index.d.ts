@@ -11,7 +11,7 @@ declare type ID = string;
 
 declare type Tag = {
   id: ID;
-  name: string;
+  title: string;
   color: string;
   deletedAt?: number;
   parentId?: ID;
@@ -61,8 +61,8 @@ declare type StorageData = {
   bookmarks: Map<string, Bookmark>;
 };
 
-declare type TreeCategory = Omit<Category, "children"> & {
-  children?: TreeCategory[];
+declare type TreeOf<T extends Category | Tag> = Omit<T, "children"> & {
+  children?: TreeOf<T>[];
   level: number;
 };
 
@@ -83,3 +83,13 @@ declare type Config = {
 };
 
 declare type BlobKeys = "iconBlob";
+
+declare type TransformTreeOfType<T extends "categories" | "tags"> =
+  T extends "categories" ? Category : Tag;
+
+declare type BookmarkDropResult =
+  | undefined
+  | ({ id: string } & (
+      | ({ type: "category" } & Category)
+      | ({ type: "tag" } & Tag)
+    ));

@@ -50,10 +50,10 @@ type IsDefault = {
 };
 
 type IsNotDefault = {
-  category: Category | TreeCategory;
+  category: Category | TreeOf<Category>;
   isDefault?: false;
   onUpdate: (id: string, type: "icon" | "title", value: string) => void;
-  onAddSubCategory?: (parentCategory: Category | TreeCategory) => void;
+  onAddSubCategory?: (parentCategory: Category | TreeOf<Category>) => void;
 };
 
 type IsParent = {

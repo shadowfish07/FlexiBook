@@ -1,35 +1,41 @@
 import { Menu } from "@arco-design/web-react";
 import classNames from "classnames";
-import { forwardRef, Fragment, useImperativeHandle } from "react";
 import { useDrop } from "react-dnd";
-import styled from "styled-components";
-import {
-  DEFAULT_CATEGORY_ID,
-  DEFAULT_CATEGORY_KEY,
-  DnDTypes,
-} from "../constants";
-import { withDrop } from "../hoc/withDrop";
+import { DEFAULT_CATEGORY_KEY, DnDTypes } from "../constants";
+
 import { useStorage } from "../hooks";
 import { CategoryItem } from "./CategoryItem";
 import { StyledMenuItem } from "./StyledMenuItem";
 
 type IsDefault = {
   isDefault: true;
+  tag?: never;
   category: Config["defaultCategory"];
   onCategoryItemUpdate?: never;
   onAddSubCategory?: never;
 };
 
-type IsNotDefault = {
-  category: Category | TreeCategory;
-  isDefault?: false;
+type isTag = {
+  tag: Tag;
+  category?: never;
+  onCategoryItemUpdate?: never;
+  onAddSubCategory?: never;
+};
+
+type isCategory = {
+  tag?: never;
+  category: Category | TreeOf<Category>;
   onCategoryItemUpdate: (
     id: string,
     type: "icon" | "title",
     value: string
   ) => void;
-  onAddSubCategory?: (parentCategory: Category | TreeCategory) => void;
+  onAddSubCategory?: (parentCategory: Category | TreeOf<Category>) => void;
 };
+
+type IsNotDefault = {
+  isDefault?: false;
+} & (isTag | isCategory);
 
 type Props = {
   hoveringId: string | null;
@@ -37,53 +43,9 @@ type Props = {
   onMenuItemMouseEnter: (e: React.MouseEvent) => void;
 } & (IsDefault | IsNotDefault);
 
-type RefHandle = {
-  handleDrop: () => void;
-};
-// TODO: 复用withDrop的方案，但由于arco design的问题，暂无法使用
-// export const MenuItem = forwardRef(
-//   (
-//     {
-//       hoveringId,
-//       category,
-//       isNew,
-//       isParent,
-//       isDefault,
-//       onCategoryItemUpdate,
-//       onMenuItemMouseEnter,
-//       onAddSubCategory,
-//     }: Props,
-//     ref: React.Ref<RefHandle>
-//   ) => {
-//     useImperativeHandle(ref, () => ({
-//       handleDrop: () => {
-//         console.log("handleDrop", hoveringId);
-//       },
-//     }));
-
-//     const id = isDefault ? DEFAULT_CATEGORY_ID : category.id;
-
-//     return (
-//       <Menu.Item key={id} data-id={id} onMouseEnter={onMenuItemMouseEnter}>
-//         <CategoryItem
-//           id={id}
-//           isHovered={hoveringId === id}
-//           category={category as any}
-//           onUpdate={onCategoryItemUpdate as any}
-//           onAddSubCategory={onAddSubCategory as any}
-//           isNew={isNew}
-//           isParent={isParent as any}
-//           isDefault={isDefault as any}
-//         />
-//       </Menu.Item>
-//     );
-//   }
-// );
-
-// export default withDrop(MenuItem);
-
 export default function MenuItem({
   hoveringId,
+  tag,
   category,
   isParent,
   isDefault,
@@ -92,16 +54,31 @@ export default function MenuItem({
   onAddSubCategory,
 }: Props) {
   const { updateField } = useStorage({ useKey: "bookmarks" });
-  const categoryKey = isDefault
-    ? DEFAULT_CATEGORY_KEY
-    : `categories-${category.id}`;
+  const id = category
+    ? isDefault
+      ? DEFAULT_CATEGORY_KEY
+      : category?.id
+    : tag.id;
+  const key = category
+    ? isDefault
+      ? DEFAULT_CATEGORY_KEY
+      : `categories-${id}`
+    : `tags-${id}`;
 
-  const [{ isDraggingOver }, dropRef] = useDrop(
+  const [{ isDraggingOver }, dropRef] = useDrop<
+    Bookmark,
+    BookmarkDropResult,
+    any
+  >(
     () => ({
       accept: DnDTypes.Bookmark,
-      drop: (item: Bookmark) => {
-        console.log("handleDrop", item);
-        updateField(item.id, "category", categoryKey);
+      drop: (item, monitor) => {
+        if (monitor.didDrop()) return undefined;
+
+        if (category) {
+          console.log("handleDrop category", item, "in", category);
+          return { type: "category", ...(category as Category) };
+        }
       },
       collect: (monitor) => ({
         isDraggingOver: !!monitor.isOver({ shallow: true }),
@@ -115,24 +92,26 @@ export default function MenuItem({
       className={classNames({ "is-dragging": isDraggingOver })}
       ref={dropRef}
     >
-      <Menu.Item
-        level={(category as TreeCategory).level ?? 1}
-        key={categoryKey}
-        _key={categoryKey}
-        data-id={categoryKey}
-        data-type="Item"
-        onMouseOver={onMenuItemMouseEnter}
-      >
-        <CategoryItem
-          isHovered={hoveringId === categoryKey}
-          category={category as any}
-          onUpdate={onCategoryItemUpdate as any}
-          onAddSubCategory={onAddSubCategory as any}
-          isParent={isParent as any}
-          isDefault={isDefault as any}
-          isDraggingOver={isDraggingOver}
-        />
-      </Menu.Item>
+      {category && (
+        <Menu.Item
+          level={(category as TreeOf<Category>).level ?? 1}
+          key={key}
+          _key={key}
+          data-id={key}
+          data-type="Item"
+          onMouseOver={onMenuItemMouseEnter}
+        >
+          <CategoryItem
+            isHovered={hoveringId === key}
+            category={category as any}
+            onUpdate={onCategoryItemUpdate as any}
+            onAddSubCategory={onAddSubCategory as any}
+            isParent={isParent as any}
+            isDefault={isDefault as any}
+            isDraggingOver={isDraggingOver}
+          />
+        </Menu.Item>
+      )}
     </StyledMenuItem>
   );
 }

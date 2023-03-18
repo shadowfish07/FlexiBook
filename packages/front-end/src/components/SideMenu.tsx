@@ -48,7 +48,8 @@ export const SideMenu = () => {
   ]);
   const [hoveringId, setHoveringId] = useState<string | null>(null);
 
-  const treeCategory = selectHelper.getTreeCategory();
+  const treeCategory = selectHelper.getTreeOf("categories");
+  const treeTag = selectHelper.getTreeOf("tags");
 
   const handleAddCategory = () => {
     const newCategory = getNewCategoryTemplate();
@@ -83,27 +84,49 @@ export const SideMenu = () => {
     setSelectedKeys([key]);
   };
 
-  const getCategoryTreeNodes = () => {
+  const getTreeNodesOf = <T extends "categories" | "tags">(
+    key: T,
+    treeData: TreeOf<TransformTreeOfType<T>>[]
+  ) => {
     const resultNode: JSX.Element[] = [];
-    const getSubCategoryTreeNodes = (parent: TreeCategory) => {
+
+    const pushNode = (
+      arr: JSX.Element[],
+      subData: TreeOf<TransformTreeOfType<T>>
+    ) => {
+      if (key === "categories") {
+        arr.push(
+          <MenuItem
+            key={subData.id}
+            hoveringId={hoveringId}
+            category={subData as unknown as Category}
+            onMenuItemMouseEnter={handleMenuItemMouseEnter}
+            onCategoryItemUpdate={handleCategoryChange}
+            onAddSubCategory={handleAddSubCategory}
+          />
+        );
+        return;
+      } else if (key === "tags") {
+        arr.push(
+          <MenuItem
+            key={subData.id}
+            hoveringId={hoveringId}
+            tag={subData as unknown as Tag}
+            onMenuItemMouseEnter={handleMenuItemMouseEnter}
+          />
+        );
+      }
+    };
+
+    const getSubTreeNodes = (parent: TreeOf<TransformTreeOfType<T>>) => {
       const result: JSX.Element[] = [];
 
-      parent.children?.forEach((subCategory) => {
-        if (!subCategory.children || subCategory.children.length === 0) {
-          result.push(
-            // TODO: 复用withDrop的方案
-            <MenuItem
-              key={subCategory.id}
-              hoveringId={hoveringId}
-              category={subCategory}
-              onMenuItemMouseEnter={handleMenuItemMouseEnter}
-              onCategoryItemUpdate={handleCategoryChange}
-              onAddSubCategory={handleAddSubCategory}
-            />
-          );
+      parent.children?.forEach((subData) => {
+        if (!subData.children || subData.children.length === 0) {
+          pushNode(result, subData);
           return;
         }
-        result.push(getSubCategoryTreeNodes(subCategory));
+        result.push(getSubTreeNodes(subData));
       });
 
       const handleToggleFold = () => {
@@ -116,41 +139,47 @@ export const SideMenu = () => {
         }
       };
 
-      return (
-        <SubMenu
-          key={parent.id}
-          hoveringId={hoveringId}
-          category={parent}
-          onToggleFold={handleToggleFold}
-          onMenuItemMouseEnter={handleMenuItemMouseEnter}
-          onCategoryItemUpdate={handleCategoryChange}
-          onAddSubCategory={handleAddSubCategory}
-        >
-          {result}
-        </SubMenu>
-      );
-    };
-
-    treeCategory.forEach((category) => {
-      if (category.deletedAt) {
-        return;
-      }
-      if (!category.children || category.children.length === 0) {
-        resultNode.push(
-          // TODO: 复用withDrop的方案，但由于arco design的问题，暂无法使用
-          <MenuItem
-            key={category.id}
+      if (key === "categories") {
+        return (
+          <SubMenu
+            key={parent.id}
             hoveringId={hoveringId}
-            category={category}
+            category={parent as unknown as TreeOf<Category>}
+            onToggleFold={handleToggleFold}
             onMenuItemMouseEnter={handleMenuItemMouseEnter}
             onCategoryItemUpdate={handleCategoryChange}
             onAddSubCategory={handleAddSubCategory}
-          />
+          >
+            {result}
+          </SubMenu>
         );
+      } else if (key === "tags") {
+        return (
+          <SubMenu
+            key={parent.id}
+            hoveringId={hoveringId}
+            tag={parent as unknown as Tag}
+            onToggleFold={handleToggleFold}
+            onMenuItemMouseEnter={handleMenuItemMouseEnter}
+          >
+            {result}
+          </SubMenu>
+        );
+      }
+
+      return <></>;
+    };
+
+    treeData.forEach((data) => {
+      if (data.deletedAt) {
+        return;
+      }
+      if (!data.children || data.children.length === 0) {
+        pushNode(resultNode, data);
         return;
       }
 
-      resultNode.push(getSubCategoryTreeNodes(category));
+      resultNode.push(getSubTreeNodes(data));
     });
 
     return resultNode;
@@ -193,12 +222,29 @@ export const SideMenu = () => {
           onMenuItemMouseEnter={handleMenuItemMouseEnter}
         />
 
-        {getCategoryTreeNodes()}
+        {getTreeNodesOf("categories", treeCategory)}
+
+        <StyledSectionHeader style={{ marginTop: 20 }}>
+          <Typography.Text
+            type="secondary"
+            style={{ userSelect: "none", fontSize: 13, marginLeft: 9 }}
+          >
+            标签
+          </Typography.Text>
+          <Button
+            type="text"
+            size="mini"
+            onClick={handleAddCategory}
+            icon={<IconPlus />}
+          />
+        </StyledSectionHeader>
+
+        {getTreeNodesOf("tags", treeTag)}
       </Menu>
     </>
   );
 
-  function handleAddSubCategory(parentCategory: Category | TreeCategory) {
+  function handleAddSubCategory(parentCategory: Category | TreeOf<Category>) {
     const newCategory = getNewCategoryTemplate(parentCategory.id);
     const newChildren = categories.get(parentCategory.id)?.children || [];
 

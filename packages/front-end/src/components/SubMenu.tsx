@@ -1,84 +1,40 @@
 import { Menu } from "@arco-design/web-react";
 import classNames from "classnames";
-import { forwardRef, useImperativeHandle, useRef } from "react";
 import { useDrop } from "react-dnd";
-import styled from "styled-components";
 import { DnDTypes } from "../constants";
-import { withDrop } from "../hoc/withDrop";
 import { useStorage } from "../hooks";
 import { CategoryItem } from "./CategoryItem";
 import { StyledMenuItem } from "./StyledMenuItem";
 
-type Props = {
-  hoveringId: string | null;
-  category: Category | TreeCategory;
-  children: JSX.Element | JSX.Element[];
-  onToggleFold: () => void;
-  onMenuItemMouseEnter: (e: React.MouseEvent) => void;
+type isTag = {
+  tag: Tag;
+  category?: never;
+  onCategoryItemUpdate?: never;
+  onAddSubCategory?: never;
+};
+
+type isCategory = {
+  tag?: never;
+  category: Category | TreeOf<Category>;
   onCategoryItemUpdate: (
     id: string,
     type: "icon" | "title",
     value: string
   ) => void;
-  onAddSubCategory?: (parentCategory: Category | TreeCategory) => void;
+  onAddSubCategory?: (parentCategory: Category | TreeOf<Category>) => void;
 };
 
-type RefHandle = {
-  handleDrop: () => void;
-};
-
-// TODO: 复用withDrop的方案，但由于arco design的问题，暂无法使用
-// export const SubMenu = forwardRef(
-//   (
-//     {
-//       children,
-//       category,
-//       hoveringId,
-//       onToggleFold,
-//       onMenuItemMouseEnter,
-//       onAddSubCategory,
-//       onCategoryItemUpdate,
-//     }: Props,
-//     ref: React.Ref<RefHandle>
-//   ) => {
-//     useImperativeHandle(ref, () => ({
-//       handleDrop: () => {
-//         console.log("handleDrop", category.id);
-//       },
-//     }));
-
-//     return (
-//       <Menu.SubMenu
-//         key={`categories-${category.id}`}
-//         data-id={category.id}
-//         title={
-//           <span data-id={category.id} onMouseEnter={onMenuItemMouseEnter}>
-//             <CategoryItem
-//               id={category.id}
-//               category={category}
-//               onAddSubCategory={onAddSubCategory}
-//               onUpdate={onCategoryItemUpdate}
-//               isParent
-//               onToggleFold={onToggleFold}
-//               isHovered={hoveringId === category.id}
-//             />
-//           </span>
-//         }
-//         selectable
-//       >
-//         <Menu.Item key="aaa">123</Menu.Item>
-
-//         {children}
-//       </Menu.SubMenu>
-//     );
-//   }
-// );
-
-// export default withDrop(SubMenu);
+type Props = {
+  hoveringId: string | null;
+  children: JSX.Element | JSX.Element[];
+  onToggleFold: () => void;
+  onMenuItemMouseEnter: (e: React.MouseEvent) => void;
+} & (isTag | isCategory);
 
 export const SubMenu = ({
   children,
   category,
+  tag,
   hoveringId,
   onToggleFold,
   onMenuItemMouseEnter,
@@ -86,12 +42,20 @@ export const SubMenu = ({
   onCategoryItemUpdate,
 }: Props) => {
   const { updateField } = useStorage({ useKey: "bookmarks" });
-  const [{ isDraggingOver }, dropRef] = useDrop(
+  const [{ isDraggingOver }, dropRef] = useDrop<
+    Bookmark,
+    BookmarkDropResult,
+    any
+  >(
     () => ({
       accept: DnDTypes.Bookmark,
-      drop: (item: Bookmark) => {
-        console.log("handleDrop", category.id);
-        updateField(item.id, "category", category.id);
+      drop: (item, monitor) => {
+        if (monitor.didDrop()) return undefined;
+
+        if (category) {
+          console.log("handleDrop category", category.id, "in", category);
+          return { type: "category", ...(category as Category) };
+        }
       },
       collect: (monitor) => ({
         isDraggingOver: !!monitor.isOver({ shallow: true }),
@@ -100,34 +64,39 @@ export const SubMenu = ({
     [updateField]
   );
 
+  const id = category ? category.id : tag.id;
+  const key = category ? `categories-${id}` : `tags-${id}`;
+
   return (
     <StyledMenuItem
       className={classNames({ "is-dragging": isDraggingOver })}
       ref={dropRef}
-      key={`categories-${category.id}`}
-      data-id={category.id}
+      key={key}
+      data-id={id}
       onMouseOver={onMenuItemMouseEnter}
     >
-      <Menu.SubMenu
-        level={(category as TreeCategory).level ?? 1}
-        _key={`categories-${category.id}`}
-        key={`categories-${category.id}`}
-        data-id={category.id}
-        data-type="SubMenu"
-        title={
-          <CategoryItem
-            category={category}
-            onAddSubCategory={onAddSubCategory}
-            onUpdate={onCategoryItemUpdate}
-            isParent
-            onToggleFold={onToggleFold}
-            isHovered={hoveringId === category.id}
-          />
-        }
-        selectable
-      >
-        {children}
-      </Menu.SubMenu>
+      {category && (
+        <Menu.SubMenu
+          level={(category as TreeOf<Category>).level ?? 1}
+          _key={key}
+          key={key}
+          data-id={id}
+          data-type="SubMenu"
+          title={
+            <CategoryItem
+              category={category}
+              onAddSubCategory={onAddSubCategory}
+              onUpdate={onCategoryItemUpdate}
+              isParent
+              onToggleFold={onToggleFold}
+              isHovered={hoveringId === id}
+            />
+          }
+          selectable
+        >
+          {children}
+        </Menu.SubMenu>
+      )}
     </StyledMenuItem>
   );
 };

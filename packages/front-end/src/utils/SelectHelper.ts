@@ -18,25 +18,27 @@ export default class {
     return this.data.categories.get(id) ?? undefined;
   }
 
-  getTreeCategory(): TreeCategory[] {
+  getTreeOf<T extends "categories" | "tags">(
+    key: T
+  ): TreeOf<TransformTreeOfType<T>>[] {
     const convertChildCategory = (
       id: string,
       level: number
-    ): TreeCategory | undefined => {
-      const category = this.data.categories.get(id);
+    ): TreeOf<TransformTreeOfType<T>> | undefined => {
+      const data = this.data[key].get(id);
 
-      if (!category) return undefined;
+      if (!data) return undefined;
 
       return {
-        ...category,
+        ...data,
         level,
-        children: category.children
+        children: data.children
           ?.map((id) => convertChildCategory(id, level + 1))
-          .filter(Boolean) as TreeCategory[],
-      };
+          .filter(Boolean),
+      } as unknown as TreeOf<TransformTreeOfType<T>>;
     };
 
-    return [...this.data.categories.values()]
+    return [...this.data[key].values()]
       .filter((item) => !item.parentId)
       .map((item) => {
         return {
@@ -44,8 +46,8 @@ export default class {
           level: 1,
           children: item.children
             ?.map((id) => convertChildCategory(id, 2))
-            .filter(Boolean) as TreeCategory[],
+            .filter(Boolean),
         };
-      });
+      }) as unknown as TreeOf<TransformTreeOfType<T>>[];
   }
 }

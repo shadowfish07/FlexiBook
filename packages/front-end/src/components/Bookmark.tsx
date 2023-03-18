@@ -1,4 +1,4 @@
-import { Card, Image, Typography } from "@arco-design/web-react";
+import { Card, Image, Message, Typography } from "@arco-design/web-react";
 import { IconCommon, IconLoading, IconTag } from "@arco-design/web-react/icon";
 import dayjs from "dayjs";
 import parseUrl from "parse-url";
@@ -9,7 +9,7 @@ import { useBookmarkLoadState } from "../store/useBookmarkLoadState";
 import { loadBlob } from "../utils";
 import isToday from "dayjs/plugin/isToday";
 import styled from "styled-components";
-import { useDrag } from "react-dnd";
+import { DragSourceMonitor, useDrag } from "react-dnd";
 import { DnDTypes } from "../constants";
 import { AddTagPopover } from "./AddTagPopover";
 import { Tag } from "./Tag";
@@ -29,19 +29,27 @@ type Props = {
 };
 
 export const Bookmark = ({ bookmark }: Props) => {
+  const { updateField } = useStorage({ useKey: "bookmarks" });
   const { selectHelper } = useStorage({ useKey: "categories" });
   const category = selectHelper.selectCategory(bookmark.category!);
   const [loadingBookmarks] = useBookmarkLoadState((state) => [
     state.loadingBookmarks,
   ]);
   const [icon, setIcon] = useState<string | null>(null);
-  const [{ isDragging }, dragRef] = useDrag(() => ({
-    type: DnDTypes.Bookmark,
-    item: bookmark,
-    collect: (monitor) => ({
-      isDragging: !!monitor.isDragging(),
-    }),
-  }));
+  const [{ isDragging }, dragRef] = useDrag<Bookmark, BookmarkDropResult, any>(
+    () => ({
+      type: DnDTypes.Bookmark,
+      item: bookmark,
+      collect: (monitor) => ({
+        isDragging: !!monitor.isDragging(),
+      }),
+      end(item, monitor) {
+        if (monitor.getDropResult()?.type === "category")
+          updateField(item.id, "category", monitor.getDropResult()?.id);
+        Message.success("成功移动书签到：" + monitor.getDropResult()?.title);
+      },
+    })
+  );
 
   useEffect(() => {
     if (bookmark.icon) {

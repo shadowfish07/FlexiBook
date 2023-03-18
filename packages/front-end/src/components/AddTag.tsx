@@ -114,7 +114,7 @@ function CreateNewTag() {
 
   const handleSave = () => {
     createRecord({
-      name,
+      title: name,
       color,
     });
     setName("");
@@ -163,7 +163,7 @@ export function AddTag({ bookmarkId, onSave }: Props) {
 
   const treeData = [...tags.values()].map((tag) => {
     return {
-      title: tag.name,
+      title: tag.title,
       key: tag.id,
     };
   });
