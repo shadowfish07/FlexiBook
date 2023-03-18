@@ -13,6 +13,7 @@ import { useConfig } from "../hooks";
 import { IconCaretDown, IconPlus } from "@arco-design/web-react/icon";
 import { withDrop } from "../hoc/withDrop";
 import { DEFAULT_CATEGORY_ID } from "../constants";
+import { CaretDown } from "./CaretDown";
 
 const StyledCategoryItem = styled.div<{ isDraggingOver?: boolean }>`
   display: inline-block;
@@ -142,9 +143,7 @@ export const CategoryItem = ({
     onUpdate(categoryId, "icon", native);
   };
 
-  const handleToggleFold = (e: SyntheticEvent) => {
-    e.stopPropagation();
-    setIsFolding(!isFolding);
+  const handleToggleFold = () => {
     onToggleFold!();
   };
 
@@ -155,20 +154,11 @@ export const CategoryItem = ({
         data-id={categoryId}
         isDraggingOver={isDraggingOver}
       >
-        {isParent ? (
-          <IconCaretDown
-            style={{
-              marginRight: 0,
-              transform: isFolding ? "rotate(0deg)" : "rotate(-90deg)",
-              transition: "rotate 0.3s",
-            }}
-            onClick={handleToggleFold}
-          />
-        ) : (
-          <span
-            style={{ width: "1em", height: "1em", display: "inline-block" }}
-          />
-        )}
+        <CaretDown
+          isFolding={isFolding}
+          isParent={isParent}
+          onToggleFold={handleToggleFold}
+        />
 
         <span className={`icon`} onClick={handleClickEmoji}>
           {category.icon}
