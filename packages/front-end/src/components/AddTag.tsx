@@ -62,8 +62,10 @@ function CreateNewTag() {
 export function AddTag({ bookmarkId, onSave }: Props) {
   const [isButtonEnable, setIsButtonEnable] = useState(false);
   const { data: tags, selectHelper } = useStorage({ useKey: "tags" });
-  const [names, setNames] = useState(selectHelper.getIdsOfTags());
   const { updateField } = useStorage({ useKey: "bookmarks" });
+  const [names, setNames] = useState(
+    selectHelper.selectBookmark(bookmarkId)?.tags || []
+  );
 
   const handleNameChange = (names: []) => {
     setNames(names);
@@ -109,7 +111,6 @@ export function AddTag({ bookmarkId, onSave }: Props) {
   return (
     <StyledContent>
       <Space direction="vertical" style={{ width: "100%" }}>
-        {/* <Input value={name} onChange={handleNameChange} placeholder="标签名" /> */}
         <TreeSelect
           placeholder="输入或选择标签"
           value={names}

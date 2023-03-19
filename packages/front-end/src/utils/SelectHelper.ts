@@ -3,12 +3,16 @@ import { DEFAULT_CATEGORY_ID } from "../constants";
 export default class {
   constructor(private data: StorageData, private config: Config | undefined) {}
 
-  getIdsOfTags(): string[] {
+  getIdsOfAllTags(): string[] {
     return [...this.data.tags.keys()];
   }
 
   selectTag(id: string): Tag | undefined {
     return this.data.tags.get(id) ?? undefined;
+  }
+
+  selectBookmark(id: string): Bookmark | undefined {
+    return this.data.bookmarks.get(id) ?? undefined;
   }
 
   selectCategory(id: string): Category | undefined {
