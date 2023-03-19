@@ -47,20 +47,14 @@ function ColorEditorPopoverContent({
   color: defaultColor,
 }: ColorEditorPopoverContentProps) {
   const { updateField } = useStorage({ useKey: "tags" });
-  const [color, setColor] = useState<string>(defaultColor);
 
-  const handleSave = () => {
+  const handleSave = (color: string) => {
     updateField(tagId, "color", color);
   };
 
   return (
     <Space direction="vertical" style={{ width: "100%" }}>
-      <ColorPicker onSelect={(color) => setColor(color)} />
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button type="primary" className="button" onClick={handleSave}>
-          确定
-        </Button>
-      </div>
+      <ColorPicker onSelect={handleSave} defaultColor={defaultColor} />
     </Space>
   );
 }
