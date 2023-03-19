@@ -26,4 +26,20 @@ export default class<T extends keyof StorageData | StorageData = StorageData> {
       newTags
     );
   }
+
+  removeTagsFromBookmark(bookmarkId: ID, tags: (Tag | ID)[]) {
+    if (this.useKey !== "bookmarks")
+      throw new Error("useKey must be bookmarks");
+    const bookmark = this.data.bookmarks.get(bookmarkId);
+    if (!bookmark) return;
+    const newTags = (bookmark.tags || []).filter((item: Tag | ID) => {
+      if (typeof item === "string") return !tags.includes(item);
+      return !tags.includes(item.id);
+    });
+    (this.updateField as UseStorageReturnType<"bookmarks">["updateField"])(
+      bookmarkId,
+      "tags",
+      newTags
+    );
+  }
 }

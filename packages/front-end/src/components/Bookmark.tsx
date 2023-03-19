@@ -29,8 +29,10 @@ type Props = {
 };
 
 export const Bookmark = ({ bookmark }: Props) => {
-  const { updateField } = useStorage({ useKey: "bookmarks" });
-  const { selectHelper } = useStorage({ useKey: "categories" });
+  const { updateField, updateHelper } = useStorage({ useKey: "bookmarks" });
+  const { selectHelper } = useStorage({
+    useKey: "categories",
+  });
   const category = selectHelper.selectCategory(bookmark.category!);
   const [loadingBookmarks] = useBookmarkLoadState((state) => [
     state.loadingBookmarks,
@@ -44,12 +46,23 @@ export const Bookmark = ({ bookmark }: Props) => {
         isDragging: !!monitor.isDragging(),
       }),
       end(item, monitor) {
-        if (monitor.getDropResult()?.type === "category") {
-          updateField(item.id, "category", monitor.getDropResult()?.id);
-          Message.success("成功移动书签到：" + monitor.getDropResult()?.title);
+        const result = monitor.getDropResult();
+        switch (result?.type) {
+          case "category": {
+            updateField(bookmark.id, "category", result?.id);
+            Message.success("成功移动书签到：" + result?.title);
+            break;
+          }
+          case "tag": {
+            if (!bookmark.tags?.includes(result.id)) {
+              updateHelper.addTagsToBookmark(bookmark.id, [result.id]);
+              Message.success("成功添加书签的标签：" + result.title);
+            }
+          }
         }
       },
-    })
+    }),
+    [bookmark]
   );
 
   useEffect(() => {

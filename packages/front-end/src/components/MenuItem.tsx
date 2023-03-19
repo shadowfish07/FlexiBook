@@ -79,6 +79,9 @@ export default function MenuItem({
         if (category) {
           console.log("handleDrop category", item, "in", category);
           return { type: "category", ...(category as Category) };
+        } else if (tag) {
+          console.log("handleDrop tag", item, "in", tag);
+          return { type: "tag", ...(tag as Tag) };
         }
       },
       collect: (monitor) => ({
