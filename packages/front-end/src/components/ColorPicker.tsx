@@ -75,6 +75,7 @@ export function ColorPicker({ defaultColor, onSelect }: ColorPickerProps) {
       <Space wrap size={6}>
         {colors.map((color) => (
           <ColorItem
+            key={color}
             color={color}
             onClick={handleColorClick}
             isSelected={selectedColor === color}
