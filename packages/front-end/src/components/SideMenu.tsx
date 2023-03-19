@@ -32,10 +32,11 @@ const StyledSectionHeader = styled.div`
 `;
 
 export const SideMenu = () => {
+  const { updateRecord: updateTagRecord } = useStorage({ useKey: "tags" });
   const {
     data: categories,
     updateField,
-    updateRecord,
+    updateRecord: updateCategoryRecord,
     selectHelper,
   } = useStorage({
     useKey: "categories",
@@ -53,7 +54,22 @@ export const SideMenu = () => {
 
   const handleAddCategory = () => {
     const newCategory = getNewCategoryTemplate();
-    updateRecord(newCategory.id, newCategory);
+    updateCategoryRecord(newCategory.id, newCategory);
+  };
+
+  const handleAddTag = () => {
+    const newTag = getNewTagTemplate();
+    updateTagRecord(newTag.id, newTag);
+  };
+
+  const getNewTagTemplate = (parentId?: string): Tag => {
+    return {
+      id: nanoid(),
+      title: "",
+      color: "#CB2E34",
+      deletedAt: undefined,
+      parentId,
+    };
   };
 
   const getNewCategoryTemplate = (parentId?: string): Category => {
@@ -234,7 +250,7 @@ export const SideMenu = () => {
           <Button
             type="text"
             size="mini"
-            onClick={handleAddCategory}
+            onClick={handleAddTag}
             icon={<IconPlus />}
           />
         </StyledSectionHeader>
@@ -248,7 +264,7 @@ export const SideMenu = () => {
     const newCategory = getNewCategoryTemplate(parentCategory.id);
     const newChildren = categories.get(parentCategory.id)?.children || [];
 
-    updateRecord(newCategory.id, newCategory);
+    updateCategoryRecord(newCategory.id, newCategory);
     updateField(
       parentCategory.id,
       "children",

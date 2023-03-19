@@ -40,6 +40,8 @@ type ColorEditorPopoverContentProps = {
   color: string;
 };
 
+const DEFAULT_NEW_TAG_TITLE = "新建标签";
+
 function ColorEditorPopoverContent({
   tagId,
   color: defaultColor,
@@ -84,10 +86,12 @@ function ColorWithEditorPopover({ tagId, color }: ColorWithEditorPopoverProps) {
 const MemoizedColorWithEditorPopover = memo(ColorWithEditorPopover);
 
 export const TagItem = ({ tag }: Props) => {
+  const isNew = tag.title === "";
   const { updateField } = useStorage({ useKey: "tags" });
 
   const handleSaveTitle = (title: string) => {
-    updateField(tag.id, "title", title);
+    const finalTitle = isNew && !title ? DEFAULT_NEW_TAG_TITLE : title;
+    updateField(tag.id, "title", finalTitle);
   };
 
   return (
@@ -99,7 +103,8 @@ export const TagItem = ({ tag }: Props) => {
       <InPlaceInput
         text={tag.title}
         textClassName="title"
-        placeholder="输入标签名"
+        placeholder={isNew ? DEFAULT_NEW_TAG_TITLE : "输入标签名"}
+        defaultStatus={isNew}
         onSave={handleSaveTitle}
       />
     </StyledTagItem>
