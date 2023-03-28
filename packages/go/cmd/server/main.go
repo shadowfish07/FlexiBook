@@ -5,7 +5,7 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gin-gonic/gin"
-	"github.com/shadowfish07/FlexiBook/internal/parse"
+	"github.com/shadowfish07/FlexiBook/utils/parse"
 )
 
 func setupRouter() *gin.Engine {
