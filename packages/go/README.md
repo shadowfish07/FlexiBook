@@ -42,6 +42,8 @@ go/
 
 推荐部署到中国香港等地区，以优化网页 meta 解析能力
 
+请修改 `packages/go/cmd/server/s.yaml` 中的配置
+
 ### 阿里云部署
 
 ```
