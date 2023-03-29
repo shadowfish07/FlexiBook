@@ -26,6 +26,6 @@ jobs:
           s config add --AccessKeyID ${{ secrets.ALIYUNACCESSKEYID }} --AccessKeySecret ${{ secrets.ALIYUNACCESSKEYSECRET }}
 
       - name: Deploy
-        working-directory: packages/go
+        working-directory: packages/go/cmd/server
         run: |
           s deploy
