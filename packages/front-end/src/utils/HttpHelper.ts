@@ -23,7 +23,12 @@ export default class {
         const result = await fetch(
           encodeURI(`${this.validUrl}/website/meta?url=${url}`)
         );
-        resolve(result.json());
+        const json = (await result.json()) as APIResult<WebsiteMetaResult>;
+        if (json.status === "error") {
+          reject(new Error(json.message));
+          return;
+        }
+        resolve(json.data);
       } catch (error) {
         console.log(error);
         reject(new Error("获取网站信息失败"));

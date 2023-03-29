@@ -93,3 +93,20 @@ declare type BookmarkDropResult =
       | ({ type: "category" } & Category)
       | ({ type: "tag" } & Tag)
     ));
+
+// API --------------------------------------------
+
+declare type APIResult<T> =
+  | {
+      status: "success";
+      data: T;
+    }
+  | {
+      status: "error";
+      message: string;
+    };
+
+declare type WebsiteMetaResult = {
+  title: string;
+  description: string;
+};
