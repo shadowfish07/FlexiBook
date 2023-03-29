@@ -9,4 +9,7 @@ func RegisterRoutes(router *gin.Engine) {
 	websiteController := controllers.NewWebsiteController()
 	router.GET("/website/meta", websiteController.GetMeta)
 	router.GET("/website/icons", websiteController.GetIcon)
+
+	systemController := controllers.NewSystemController()
+	router.GET("/system/version", systemController.GetServiceVersion)
 }
