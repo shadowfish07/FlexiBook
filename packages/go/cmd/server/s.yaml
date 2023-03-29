@@ -7,6 +7,14 @@ vars: # 全局变量
   service:
     name: FlexiBook-server
     description: "FlexiBook-server"
+    # 阿里云OSS挂载
+    ossMountConfig:
+      mountPoints:
+        - endpoint: ${env(endpoint)}
+          bucketName: ${env(bucketName)}
+          bucketPath: ${env(bucketPath)}
+          mountDir: ${env(mountDir)}
+          readOnly: false
 
 services:
   FlexiBook-server: # 业务名称/模块名称
@@ -27,7 +35,7 @@ services:
         caPort: 8080
         timeout: 60
         name: FlexiBook-server
-        asyncConfiguration: {}
+        asyncConfiguration: { destinationConfig: {} }
         codeUri: ./main
       triggers:
         - name: httpTrigger
@@ -37,11 +45,3 @@ services:
             methods:
               - GET
               - POST
-      customDomains:
-        - domainName: auto
-          protocol: HTTP
-          routeConfigs:
-            - path: /*
-              methods:
-                - GET
-                - POST

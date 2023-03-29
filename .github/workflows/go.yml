@@ -1,8 +1,11 @@
 name: go deploy
 on:
   push:
+    branches:
+      - main
     paths:
       - "packages/go/**"
+  workflow_dispatch:
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -27,5 +30,10 @@ jobs:
 
       - name: Deploy
         working-directory: packages/go/cmd/server
+        env:
+          endpoint: ${{ secrets.ALIYUNOSSMOUNTENDPOINT }}
+          bucketName: ${{ secrets.ALIYUNOSSMOUNTBUCKETNAME }}
+          bucketPath: ${{ secrets.ALIYUNOSSMOUNTBUCKETPATH }}
+          mountDir: ${{ secrets.ALIYUNOSSMOUNTMOUNTDIR }}
         run: |
-          s deploy
+          s deploy -y --use-local
