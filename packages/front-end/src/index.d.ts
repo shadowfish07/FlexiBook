@@ -34,7 +34,7 @@ declare type Bookmark = {
   tags?: ID[];
   deletedAt?: number;
   createdAt: number;
-  category?: ID;
+  category?: ID; // 为空、为DEFAULT_CATEGORY_ID 时，表示默认分类
   icon?: string;
   isFavorite?: boolean;
 };
