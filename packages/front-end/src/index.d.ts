@@ -35,7 +35,6 @@ declare type Bookmark = {
   deletedAt?: number;
   createdAt: number;
   category?: ID;
-  parentCategory?: string;
   icon?: string;
   isFavorite?: boolean;
 };
