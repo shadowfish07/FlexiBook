@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/shadowfish07/FlexiBook/config"
 	"github.com/shadowfish07/FlexiBook/utils/response"
 )
 
@@ -15,5 +16,5 @@ func NewSystemController() *SystemController {
 }
 
 func (sc *SystemController) GetServiceVersion(ctx *gin.Context) {
-	response.JSONResponse(ctx, VERSION)
+	response.JSONResponse(ctx, config.MountDir)
 }

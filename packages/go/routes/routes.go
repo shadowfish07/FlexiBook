@@ -12,4 +12,7 @@ func RegisterRoutes(router *gin.Engine) {
 
 	systemController := controllers.NewSystemController()
 	router.GET("/system/version", systemController.GetServiceVersion)
+
+	bookmarkController := controllers.NewBookmarkController()
+	router.POST("/bookmarks", bookmarkController.CreateBookmark)
 }
