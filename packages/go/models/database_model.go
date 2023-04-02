@@ -8,4 +8,5 @@ type Database struct {
 	Tags       Tags       `json:"tags"`
 	Categories Categories `json:"categories"`
 	Bookmarks  Bookmarks  `json:"bookmarks"`
+	Config     Config     `json:"config"`
 }

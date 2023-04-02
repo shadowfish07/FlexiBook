@@ -23,7 +23,7 @@ type CreateBookmarkParams struct {
 	Title      string      `json:"title" binding:"required"`
 	URL        string      `json:"url" binding:"required"`
 	Tags       []models.ID `json:"tags" binding:"omitempty,json"`
-	Category   models.ID   `json:"category" binding:"required"`
+	Category   models.ID   `json:"category"`
 	Icon       *string     `json:"icon"`
 	IsFavorite *bool       `json:"isFavorite"`
 }

@@ -3,6 +3,7 @@ package services
 import (
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/shadowfish07/FlexiBook/models"
 	"github.com/shadowfish07/FlexiBook/repositories"
@@ -18,22 +19,34 @@ func NewBookmarkService() *BookmarkService {
 	}
 }
 
-func (bs *BookmarkService) newBookmark(bookmark models.Bookmark) *models.Bookmark {
+func (bs *BookmarkService) newBookmark(bookmark models.Bookmark) (*models.Bookmark, error) {
 	uuidV4, _ := uuid.NewRandom()
 
-	bookmark.ID = uuidV4.String()
-	bookmark.CreatedAt = time.Now().Unix()
+	if bookmark.ID == "" {
+		bookmark.ID = uuidV4.String()
+	}
+	if bookmark.CreatedAt == 0 {
+		bookmark.CreatedAt = time.Now().UnixMilli()
+	}
 
-	// 这里可能需要二次校验，但目前这里只会被controller调用，由controller保证参数的正确性
-	// 若出现了controller外的调用方式，这里需要再次校验
+	// TODO 检查ID是否重复
 
-	return &bookmark
+	err := validator.New().Struct(bookmark)
+	if err != nil {
+		return nil, err
+	}
+
+	return &bookmark, nil
 }
 
 func (bs *BookmarkService) CreateBookmark(bookmarkParams models.Bookmark) (*models.Bookmark, error) {
-	bookmark := bs.newBookmark(bookmarkParams)
+	bookmark, err := bs.newBookmark(bookmarkParams)
 
-	err := bs.bookmarkRepository.Save(*bookmark)
+	if err != nil {
+		return nil, err
+	}
+
+	err = bs.bookmarkRepository.Save(*bookmark)
 
 	return bookmark, err
 }

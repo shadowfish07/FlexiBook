@@ -15,4 +15,8 @@ func RegisterRoutes(router *gin.Engine) {
 
 	bookmarkController := controllers.NewBookmarkController()
 	router.POST("/bookmarks", bookmarkController.CreateBookmark)
+
+	syncController := controllers.NewSyncController()
+	router.GET("/sync/incremental/:clientIncrementalId", syncController.GetIncrementalUpdate)
+	router.POST("/sync/incremental", syncController.PostIncrementalUpdate)
 }

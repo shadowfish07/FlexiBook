@@ -13,7 +13,7 @@ type BookmarkRepository struct {
 
 func NewBookmarkRepository() *BookmarkRepository {
 	return &BookmarkRepository{
-		database: storage.NewDatabase(),
+		database: storage.CachedDatabase,
 	}
 }
 

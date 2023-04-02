@@ -40,6 +40,7 @@ func (dr *Database) Save(value *models.Database) error {
 		return err
 	}
 
+	dr.cache = value
 	return dr.storage.Save(dr.DatabaseFileName, jsonData)
 }
 

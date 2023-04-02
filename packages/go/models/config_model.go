@@ -9,5 +9,7 @@ type Config struct {
 		Title string `json:"title"`
 		Icon  string `json:"icon"`
 	} `json:"favorite"`
-	BackendURL *string `json:"backendURL,omitempty"`
+	ClientId     string  `json:"clientId"`
+	ClientSecret string  `json:"clientSecret"`
+	BackendURL   *string `json:"backendURL,omitempty"`
 }
