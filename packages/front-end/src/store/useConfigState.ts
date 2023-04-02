@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import create from "zustand";
 
 interface ConfigState {
@@ -15,6 +16,8 @@ const INIT_CONFIG: Config = {
     title: "星标",
     icon: "❤️",
   },
+  clientId: nanoid(),
+  clientSecret: nanoid(),
 };
 
 const loadLocalConfig = async () => {

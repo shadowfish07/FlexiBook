@@ -45,15 +45,6 @@ declare type SupportTypeOfStorageData = KeyOfMapType<
 
 declare type KeyOfMapType<T> = T extends Map<infer K, infer V> ? V : never;
 
-// convert a property of a type from a Map to an array
-type MapToArray<T> = {
-  [P in keyof T]: T[P] extends Map<any, infer V>
-    ? V[]
-    : T[P] extends Map<any, infer V> | undefined
-    ? V[] | undefined
-    : T[P];
-};
-
 declare type StorageData = {
   tags: Map<string, Tag>;
   categories: Map<string, Category>;
@@ -78,6 +69,8 @@ declare type Config = {
     title: string;
     icon: string;
   };
+  clientId: string;
+  clientSecret: string;
   backendURL?: string;
 };
 
@@ -92,6 +85,20 @@ declare type BookmarkDropResult =
       | ({ type: "category" } & Category)
       | ({ type: "tag" } & Tag)
     ));
+
+declare type OperationLog = {
+  id: string;
+  clientId: string;
+  createdAt: number;
+  actions: OperationLogAction[];
+};
+
+declare type OperationLogAction = {
+  type: "create" | "update" | "delete";
+  entity: keyof StorageData;
+  entityId: ID;
+  data: Record<string, unknown>;
+};
 
 // API --------------------------------------------
 

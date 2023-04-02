@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { nanoid } from "nanoid";
 import { useEffect, useContext, useRef } from "react";
 import { SavingContext } from "../main";
@@ -23,7 +24,6 @@ export type UseStorageReturnType<
     field: P,
     value: KeyOfMapType<execType<T>>[P]
   ) => void;
-  updateData: (newData: execType<T>) => void;
   updateRecord: (id: string, value: KeyOfMapType<execType<T>>) => void;
   createRecord: (value: Omit<KeyOfMapType<execType<T>>, "id">) => ID;
   isSaving: boolean;
@@ -36,9 +36,9 @@ type FieldType<T> = keyof KeyOfMapType<execType<T>>;
 /**
  *  若传入useKey，则返回的数据、更新数据时的入参均为StorageData[useKey]
  */
-export const useStorage = <
-  T extends keyof StorageData | StorageData = StorageData
->({ useKey }: Props<T> = {}): UseStorageReturnType<T> => {
+export const useStorage = <T extends keyof StorageData>({
+  useKey,
+}: Props<T> = {}): UseStorageReturnType<T> => {
   const [data, setData] = useDataState((state) => [state.data, state.setData]);
   const { isSaving, setIsSaving } = useContext(SavingContext);
   const dataRef = useRef<StorageData>(data);
@@ -49,22 +49,6 @@ export const useStorage = <
   }, [data]);
 
   /**
-   * 直接替换整个map或local data
-   */
-  const updateData = (newData: execType<T>) => {
-    setIsSaving(true);
-
-    const finalData = (
-      useKey
-        ? { ...dataRef.current, [useKey as keyof StorageData]: newData }
-        : newData
-    ) as StorageData;
-
-    setData(finalData).then(() => setIsSaving(false));
-    dataRef.current = finalData;
-  };
-
-  /**
    * 更新指定id的数据
    *
    * 只能在传入useKey时使用
@@ -73,6 +57,13 @@ export const useStorage = <
     if (!useKey) {
       throw new Error("this method is only supported when useKey is passed");
     }
+
+    console.log("updateRecord", id, value);
+
+    const operationLog = getOperationLog();
+
+    console.log("operationLog", operationLog);
+
     setIsSaving(true);
     const finalData = {
       ...dataRef.current,
@@ -83,6 +74,59 @@ export const useStorage = <
 
     setData(finalData).then(() => setIsSaving(false));
     dataRef.current = finalData;
+
+    function getOperationLog(): OperationLog {
+      const operationLogActionData: Record<string, unknown> = {};
+
+      const oldData = dataRef.current[useKey as keyof StorageData].get(id) as
+        | KeyOfMapType<execType<T>>
+        | undefined;
+      if (!oldData) {
+        return {
+          id: nanoid(),
+          clientId: "",
+          createdAt: new Date().getTime(),
+          actions: [
+            {
+              type: "create",
+              entity: useKey!,
+              entityId: id,
+              data: value,
+            },
+          ],
+        };
+      }
+
+      const unvisitedNewDataKeys = new Set<keyof KeyOfMapType<execType<T>>>(
+        Object.keys(value) as any
+      );
+
+      for (const oldKey in oldData) {
+        unvisitedNewDataKeys.delete(oldKey);
+
+        if (oldData[oldKey] !== value[oldKey]) {
+          operationLogActionData[oldKey] = value[oldKey];
+        }
+
+        for (const newKey of unvisitedNewDataKeys) {
+          operationLogActionData[newKey as string] = value[newKey];
+        }
+      }
+
+      return {
+        id: nanoid(),
+        clientId: "",
+        createdAt: new Date().getTime(),
+        actions: [
+          {
+            type: "update",
+            entity: useKey!,
+            entityId: id,
+            data: operationLogActionData,
+          },
+        ],
+      };
+    }
   };
 
   /**
@@ -98,6 +142,26 @@ export const useStorage = <
     if (!useKey) {
       throw new Error("this method is only supported when useKey is passed");
     }
+
+    console.log("updateField", id, field, value);
+
+    const operationLog: OperationLog = {
+      id: nanoid(),
+      clientId: "",
+      createdAt: new Date().getTime(),
+      actions: [
+        {
+          type: isAddingRecord(useKey, id) ? "create" : "update",
+          entity: useKey,
+          entityId: id,
+          data: {
+            [field]: value,
+          },
+        },
+      ],
+    };
+
+    console.log("operationLog", operationLog);
 
     setIsSaving(true);
     const finalData = {
@@ -126,11 +190,14 @@ export const useStorage = <
   return {
     data: finalData,
     updateField,
-    updateData,
     updateRecord,
     createRecord,
     isSaving,
     selectHelper: new SelectHelper(data, config),
     updateHelper: new UpdateHelper(data, config, useKey, updateField),
   };
+
+  function isAddingRecord(entity: keyof StorageData, entityId: ID): boolean {
+    return !dataRef.current[entity].has(entityId);
+  }
 };
