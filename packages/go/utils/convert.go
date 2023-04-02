@@ -6,37 +6,37 @@ import (
 	"github.com/shadowfish07/FlexiBook/models"
 )
 
-func GetStringFromMap(data map[string]interface{}, key string) (string, error) {
+func GetStringFromMap(data map[string]interface{}, key string) (*string, error) {
 	value, ok := data[key].(string)
 	if !ok {
 		if data[key] == nil {
-			return "", nil
+			return nil, nil
 		}
-		return "", fmt.Errorf("key '%s' is not a string", key)
+		return nil, fmt.Errorf("key '%s' is not a string", key)
 	}
-	return value, nil
+	return &value, nil
 }
 
-func GetInt64FromMap(data map[string]interface{}, key string) (int64, error) {
+func GetInt64FromMap(data map[string]interface{}, key string) (*int64, error) {
 	value, ok := data[key].(int64)
 	if !ok {
 		if data[key] == nil {
-			return 0, nil
+			return nil, nil
 		}
-		return 0, fmt.Errorf("key '%s' is not an int64", key)
+		return nil, fmt.Errorf("key '%s' is not an int64", key)
 	}
-	return value, nil
+	return &value, nil
 }
 
-func GetBoolFromMap(data map[string]interface{}, key string) (bool, error) {
+func GetBoolFromMap(data map[string]interface{}, key string) (*bool, error) {
 	value, ok := data[key].(bool)
 	if !ok {
 		if data[key] == nil {
-			return false, nil
+			return nil, nil
 		}
-		return false, fmt.Errorf("key '%s' is not a bool", key)
+		return nil, fmt.Errorf("key '%s' is not a bool", key)
 	}
-	return value, nil
+	return &value, nil
 }
 
 func GetStringSliceFromMap(data map[string]interface{}, key string) ([]string, error) {

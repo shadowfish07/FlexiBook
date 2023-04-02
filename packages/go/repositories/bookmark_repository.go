@@ -17,13 +17,13 @@ func NewBookmarkRepository() *BookmarkRepository {
 	}
 }
 
-func (br *BookmarkRepository) GetByID(id string) (*models.Bookmark, error) {
+func (br *BookmarkRepository) Get(id models.ID) (*models.Bookmark, error) {
 	db, err := br.database.Get()
 	if err != nil {
 		return nil, err
 	}
 
-	bookmark, ok := db.Bookmarks[id]
+	bookmark, ok := db.Bookmarks[string(id)]
 	if !ok {
 		return nil, errors.New("bookmark not found")
 	}

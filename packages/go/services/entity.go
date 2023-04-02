@@ -9,7 +9,7 @@ import (
 type Entity interface {
 	Create(id models.ID, data map[string]interface{}) error
 	Update(id models.ID, data map[string]interface{}) error
-	Delete(id models.ID, data map[string]interface{}) error
+	Delete(id models.ID) error
 }
 
 func NewEntity(entityType string) Entity {
@@ -32,7 +32,7 @@ func ProcessAction(entity Entity, entityId models.ID, actionType string, data ma
 	case models.OperationActionTypeUpdate:
 		return entity.Update(entityId, data)
 	case models.OperationActionTypeDelete:
-		return entity.Delete(entityId, data)
+		return entity.Delete(entityId)
 	default:
 		return fmt.Errorf("invalid action type: %s", actionType)
 	}

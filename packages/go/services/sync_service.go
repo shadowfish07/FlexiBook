@@ -1,10 +1,9 @@
 package services
 
 import (
-	"time"
-
 	"github.com/shadowfish07/FlexiBook/models"
 	"github.com/shadowfish07/FlexiBook/repositories"
+	"github.com/shadowfish07/FlexiBook/utils"
 )
 
 type SyncService struct {
@@ -41,7 +40,7 @@ func (ss *SyncService) AddIncrementalUpdate(operation models.Operation) (models.
 		return nil, err
 	}
 	operation.Id = latestId + 1
-	operation.CreateAt = time.Now().UnixMilli()
+	operation.CreateAt = utils.GetTimestamp()
 
 	finalOperation := append(afterOperations, operation)
 
