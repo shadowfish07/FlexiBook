@@ -22,13 +22,13 @@ func (ss *SyncService) GetIncrementalUpdate(clientIncrementalId int64) (models.O
 	return ss.operationRepository.GetAfter(clientIncrementalId)
 }
 
-// 新的增量更新会被添加到operation list的末尾，并返回新增量更新原ID到最新末尾的所有操作(包含自己)
+// 新的增量更新会被添加到operation list的末尾，并返回新增量更新原ID到最新末尾的所有操作(不包含自己)
 // 比如
 // 现有的operation list为 [1,2,3,4,5,6,7,8,9,10]
-// 新增的operation为 11 （11是新增的operation)
-// 则返回的operation list为 [11]
-// 如果新增的operation为 6 （11是新增的operation)
-// 则返回的operation list为 [6,7,8,9,10,11]
+// 新增的operation为 11 （新增的operation是11，但不会在本次返回)
+// 则返回的operation list为 []
+// 如果新增的operation为 6 （新增的operation是11，但不会在本次返回)
+// 则返回的operation list为 [6,7,8,9,10]
 func (ss *SyncService) AddIncrementalUpdate(operation models.Operation) (models.OperationList, error) {
 	afterOperations, err := ss.operationRepository.GetAfter(operation.Id)
 	if err != nil {
@@ -49,7 +49,7 @@ func (ss *SyncService) AddIncrementalUpdate(operation models.Operation) (models.
 	}
 
 	ss.operationRepository.Add(operation)
-	return finalOperation, nil
+	return afterOperations, nil
 }
 
 func (ss *SyncService) sync(operations models.OperationList) error {

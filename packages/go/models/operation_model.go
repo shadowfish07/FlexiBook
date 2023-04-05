@@ -9,7 +9,17 @@ type OperationAction struct {
 
 type Operation struct {
 	Id           int64             `json:"id" binding:"required,number"`
+	UniqueId     string            `json:"uniqueId" binding:"required,uuid"`
 	CreateAt     int64             `json:"createAt" binding:"required,number"`
+	ClientId     ID                `json:"clientId" binding:"required"`
+	ClientSecret ID                `json:"clientSecret" binding:"required"`
+	Actions      []OperationAction `json:"actions" binding:"required,dive"`
+}
+
+type PartialOperation struct {
+	Id           int64             `json:"id" binding:"required,number"`
+	UniqueId     *string           `json:"uniqueId" binding:"omitempty,uuid"`
+	CreateAt     *int64            `json:"createAt" binding:"omitempty,number"`
 	ClientId     ID                `json:"clientId" binding:"required"`
 	ClientSecret ID                `json:"clientSecret" binding:"required"`
 	Actions      []OperationAction `json:"actions" binding:"required,dive"`

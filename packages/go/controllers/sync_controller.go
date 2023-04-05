@@ -6,8 +6,10 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/shadowfish07/FlexiBook/models"
 	"github.com/shadowfish07/FlexiBook/services"
+	"github.com/shadowfish07/FlexiBook/utils"
 	"github.com/shadowfish07/FlexiBook/utils/response"
 )
 
@@ -42,14 +44,34 @@ func (sc *SyncController) GetIncrementalUpdate(ctx *gin.Context) {
 }
 
 func (sc *SyncController) PostIncrementalUpdate(ctx *gin.Context) {
-	var req models.Operation
+	var req models.PartialOperation
 
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		response.ErrorResponse(ctx, http.StatusBadRequest, err)
 		return
 	}
 
-	afterOperations, err := sc.syncService.AddIncrementalUpdate(req)
+	if req.UniqueId == nil {
+		uuidV4, _ := uuid.NewRandom()
+		uuidString := uuidV4.String()
+		req.UniqueId = &uuidString
+	}
+
+	if req.CreateAt == nil {
+		timestamp := utils.GetTimestamp()
+		req.CreateAt = &timestamp
+	}
+
+	completeReq := models.Operation{
+		Id:           req.Id,
+		UniqueId:     *req.UniqueId,
+		CreateAt:     *req.CreateAt,
+		ClientId:     req.ClientId,
+		ClientSecret: req.ClientSecret,
+		Actions:      req.Actions,
+	}
+
+	afterOperations, err := sc.syncService.AddIncrementalUpdate(completeReq)
 
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusInternalServerError, err)
