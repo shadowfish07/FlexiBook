@@ -22,21 +22,34 @@ func getTagFromData(id models.ID, data map[string]interface{}, isCreate bool) (*
 	if err != nil {
 		return nil, err
 	}
-	if title == nil && isCreate {
-		return nil, errors.New("title is required")
+	var finalTitle string = ""
+	if title == nil {
+		if isCreate {
+			return nil, errors.New("title is required")
+		}
+	} else {
+		finalTitle = *title
 	}
 
 	color, err := utils.GetStringFromMap(data, "color")
 	if err != nil {
 		return nil, err
 	}
+	var finalColor string = ""
+	if color != nil {
+		finalColor = *color
+	}
 
-	parentID, err := utils.GetStringFromMap(data, "parentId")
+	parent, err := utils.GetStringFromMap(data, "parentId")
 	if err != nil {
 		return nil, err
 	}
 
-	idParent := models.ID(*parentID)
+	var finalParentId *models.ID = nil
+	if parent != nil {
+		parentId := models.ID(*parent)
+		finalParentId = &parentId
+	}
 
 	children, err := utils.GetStringSliceFromMap(data, "children")
 	if err != nil {
@@ -61,9 +74,9 @@ func getTagFromData(id models.ID, data map[string]interface{}, isCreate bool) (*
 
 	return &models.Tag{
 		ID:        string(id),
-		Title:     *title,
-		Color:     *color,
-		ParentID:  &idParent,
+		Title:     finalTitle,
+		Color:     finalColor,
+		ParentID:  finalParentId,
 		Children:  utils.StringSliceToIDSlice(children),
 		CreatedAt: createAtValue,
 		DeletedAt: deletedAt,

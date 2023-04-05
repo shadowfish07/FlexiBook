@@ -22,8 +22,13 @@ func getCategoryFromData(id models.ID, data map[string]interface{}, isCreate boo
 	if err != nil {
 		return nil, err
 	}
-	if title == nil && isCreate {
-		return nil, errors.New("title is required")
+	var finalTitle string = ""
+	if title == nil {
+		if isCreate {
+			return nil, errors.New("title is required")
+		}
+	} else {
+		finalTitle = *title
 	}
 
 	icon, err := utils.GetStringFromMap(data, "icon")
@@ -36,7 +41,11 @@ func getCategoryFromData(id models.ID, data map[string]interface{}, isCreate boo
 		return nil, err
 	}
 
-	parentId := models.ID(*parent)
+	var finalParentId *models.ID = nil
+	if parent != nil {
+		parentId := models.ID(*parent)
+		finalParentId = &parentId
+	}
 
 	deletedAt, err := utils.GetInt64FromMap(data, "deletedAt")
 	if err != nil {
@@ -61,9 +70,9 @@ func getCategoryFromData(id models.ID, data map[string]interface{}, isCreate boo
 
 	return &models.Category{
 		ID:        string(id),
-		Title:     *title,
+		Title:     finalTitle,
 		Icon:      icon,
-		ParentID:  &parentId,
+		ParentID:  finalParentId,
 		Children:  utils.StringSliceToIDSlice(children),
 		DeletedAt: deletedAt,
 		CreatedAt: createAtValue,

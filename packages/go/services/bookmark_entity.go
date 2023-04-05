@@ -22,16 +22,26 @@ func getBookmarkFromData(id models.ID, data map[string]interface{}, isCreate boo
 	if err != nil {
 		return nil, err
 	}
-	if title == nil && isCreate {
-		return nil, errors.New("title is required")
+	var finalTitle string = ""
+	if title == nil {
+		if isCreate {
+			return nil, errors.New("title is required")
+		}
+	} else {
+		finalTitle = *title
 	}
 
 	url, err := utils.GetStringFromMap(data, "url")
 	if err != nil {
 		return nil, err
 	}
-	if url == nil && isCreate {
-		return nil, errors.New("url is required")
+	var finalUrl string = ""
+	if url == nil {
+		if isCreate {
+			return nil, errors.New("url is required")
+		}
+	} else {
+		finalUrl = *url
 	}
 
 	category, err := utils.GetStringFromMap(data, "category")
@@ -39,7 +49,11 @@ func getBookmarkFromData(id models.ID, data map[string]interface{}, isCreate boo
 		return nil, err
 	}
 
-	idCategory := models.ID(*category)
+	var finalCategory *models.ID = nil
+	if category != nil {
+		idCategory := models.ID(*category)
+		finalCategory = &idCategory
+	}
 
 	tags, err := utils.GetStringSliceFromMap(data, "tags")
 	if err != nil {
@@ -74,9 +88,9 @@ func getBookmarkFromData(id models.ID, data map[string]interface{}, isCreate boo
 
 	return &models.Bookmark{
 		ID:         string(id),
-		Title:      *title,
-		URL:        *url,
-		Category:   &idCategory,
+		Title:      finalTitle,
+		URL:        finalUrl,
+		Category:   finalCategory,
 		Tags:       utils.StringSliceToIDSlice(tags),
 		Icon:       icon,
 		DeletedAt:  deletedAt,
