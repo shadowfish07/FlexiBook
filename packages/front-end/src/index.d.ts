@@ -13,6 +13,7 @@ declare type Tag = {
   id: ID;
   title: string;
   color: string;
+  createdAt: number;
   deletedAt?: number;
   parentId?: ID;
   children?: ID[]; // 暂不支持嵌套
@@ -23,6 +24,7 @@ declare type Category = {
   parentId?: ID;
   title: string;
   icon: string;
+  createdAt: number;
   deletedAt?: number;
   children?: ID[];
 };

@@ -9,6 +9,7 @@ import { useSideMenuState } from "../store/useSideMenuState";
 import MenuItem from "./MenuItem";
 import { SubMenu } from "./SubMenu";
 import { DEFAULT_CATEGORY_KEY } from "../constants";
+import { getTimestamp } from "../utils";
 
 const GlobalMenuStyle = createGlobalStyle`
   /* .arco-menu-light .arco-menu-inline-header.arco-menu-selected {
@@ -67,6 +68,7 @@ export const SideMenu = () => {
       id: nanoid(),
       title: "",
       color: "#CB2E34",
+      createdAt: getTimestamp(),
       deletedAt: undefined,
       parentId,
     };
@@ -77,6 +79,7 @@ export const SideMenu = () => {
       id: nanoid(),
       title: "",
       icon: "📂",
+      createdAt: getTimestamp(),
       deletedAt: undefined,
       parentId,
     };

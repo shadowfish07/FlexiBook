@@ -15,7 +15,7 @@ import styled from "styled-components";
 import { DEFAULT_CATEGORY_ID } from "../constants";
 import { useConfig, useStorage } from "../hooks";
 import { useBookmarkLoadState } from "../store/useBookmarkLoadState";
-import { saveBlob } from "../utils";
+import { getTimestamp, saveBlob } from "../utils";
 
 const StyledContent = styled.div`
   .footer {
@@ -83,7 +83,7 @@ export const AddBookmark = ({ fromExtension, onSave }: Props) => {
       id: id,
       url: urlWithProtocol,
       title: hostname,
-      createdAt: new Date().getTime(),
+      createdAt: getTimestamp(),
       deletedAt: undefined,
       category: selectedCategory.value,
     });

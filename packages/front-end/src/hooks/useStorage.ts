@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 import { useEffect, useContext, useRef } from "react";
 import { SavingContext } from "../main";
 import { useDataState } from "../store/useDataState";
-import { SelectHelper } from "../utils";
+import { getTimestamp, SelectHelper } from "../utils";
 import UpdateHelper from "../utils/UpdateHelper";
 import { useConfig } from "./useConfig";
 
@@ -25,13 +25,18 @@ export type UseStorageReturnType<
     value: KeyOfMapType<execType<T>>[P]
   ) => void;
   updateRecord: (id: string, value: KeyOfMapType<execType<T>>) => void;
-  createRecord: (value: Omit<KeyOfMapType<execType<T>>, "id">) => ID;
+  createRecord: (value: CreateRecordValue<T>) => ID;
   isSaving: boolean;
   selectHelper: SelectHelper;
   updateHelper: UpdateHelper;
 };
 
 type FieldType<T> = keyof KeyOfMapType<execType<T>>;
+
+type CreateRecordValue<T> = Omit<
+  Omit<KeyOfMapType<execType<T>>, "id">,
+  "createdAt"
+>;
 
 /**
  *  若传入useKey，则返回的数据、更新数据时的入参均为StorageData[useKey]
@@ -85,7 +90,7 @@ export const useStorage = <T extends keyof StorageData>({
         return {
           id: nanoid(),
           clientId: "",
-          createdAt: new Date().getTime(),
+          createdAt: getTimestamp(),
           actions: [
             {
               type: "create",
@@ -116,7 +121,7 @@ export const useStorage = <T extends keyof StorageData>({
       return {
         id: nanoid(),
         clientId: "",
-        createdAt: new Date().getTime(),
+        createdAt: getTimestamp(),
         actions: [
           {
             type: "update",
@@ -143,12 +148,10 @@ export const useStorage = <T extends keyof StorageData>({
       throw new Error("this method is only supported when useKey is passed");
     }
 
-    console.log("updateField", id, field, value);
-
     const operationLog: OperationLog = {
       id: nanoid(),
       clientId: "",
-      createdAt: new Date().getTime(),
+      createdAt: getTimestamp(),
       actions: [
         {
           type: isAddingRecord(useKey, id) ? "create" : "update",
@@ -160,8 +163,6 @@ export const useStorage = <T extends keyof StorageData>({
         },
       ],
     };
-
-    console.log("operationLog", operationLog);
 
     setIsSaving(true);
     const finalData = {
@@ -177,9 +178,10 @@ export const useStorage = <T extends keyof StorageData>({
     dataRef.current = finalData;
   };
 
-  const createRecord = (value: Omit<KeyOfMapType<execType<T>>, "id">) => {
+  const createRecord = (value: CreateRecordValue<T>) => {
     const id = nanoid();
-    updateRecord(id, { ...value, id } as KeyOfMapType<execType<T>>);
+    const createAt = getTimestamp();
+    updateRecord(id, { ...value, id, createAt } as KeyOfMapType<execType<T>>);
     return id;
   };
 
