@@ -17,12 +17,12 @@ func NewBookmarkEntity() *BookmarkEntity {
 	}
 }
 
-func getBookmarkFromData(id models.ID, data map[string]interface{}) (*models.Bookmark, error) {
+func getBookmarkFromData(id models.ID, data map[string]interface{}, isCreate bool) (*models.Bookmark, error) {
 	title, err := utils.GetStringFromMap(data, "title")
 	if err != nil {
 		return nil, err
 	}
-	if title == nil {
+	if title == nil && isCreate {
 		return nil, errors.New("title is required")
 	}
 
@@ -30,7 +30,7 @@ func getBookmarkFromData(id models.ID, data map[string]interface{}) (*models.Boo
 	if err != nil {
 		return nil, err
 	}
-	if url == nil {
+	if url == nil && isCreate {
 		return nil, errors.New("url is required")
 	}
 
@@ -86,7 +86,7 @@ func getBookmarkFromData(id models.ID, data map[string]interface{}) (*models.Boo
 }
 
 func (be *BookmarkEntity) Create(id models.ID, data map[string]interface{}) error {
-	newBookmark, err := getBookmarkFromData(id, data)
+	newBookmark, err := getBookmarkFromData(id, data, true)
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,7 @@ func (be *BookmarkEntity) Create(id models.ID, data map[string]interface{}) erro
 }
 
 func (be *BookmarkEntity) Update(id models.ID, data map[string]interface{}) error {
-	updatedBookmark, err := getBookmarkFromData(id, data)
+	updatedBookmark, err := getBookmarkFromData(id, data, false)
 	if err != nil {
 		return err
 	}

@@ -17,12 +17,12 @@ func NewTagEntity() *TagEntity {
 	}
 }
 
-func getTagFromData(id models.ID, data map[string]interface{}) (*models.Tag, error) {
+func getTagFromData(id models.ID, data map[string]interface{}, isCreate bool) (*models.Tag, error) {
 	title, err := utils.GetStringFromMap(data, "title")
 	if err != nil {
 		return nil, err
 	}
-	if title == nil {
+	if title == nil && isCreate {
 		return nil, errors.New("title is required")
 	}
 
@@ -71,7 +71,7 @@ func getTagFromData(id models.ID, data map[string]interface{}) (*models.Tag, err
 }
 
 func (te *TagEntity) Create(id models.ID, data map[string]interface{}) error {
-	newTag, err := getTagFromData(id, data)
+	newTag, err := getTagFromData(id, data, true)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func (te *TagEntity) Create(id models.ID, data map[string]interface{}) error {
 }
 
 func (te *TagEntity) Update(id models.ID, data map[string]interface{}) error {
-	updatedTag, err := getTagFromData(id, data)
+	updatedTag, err := getTagFromData(id, data, false)
 	if err != nil {
 		return err
 	}

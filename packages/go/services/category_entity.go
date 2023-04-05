@@ -17,12 +17,12 @@ func NewCategoryEntity() *CategoryEntity {
 	}
 }
 
-func getCategoryFromData(id models.ID, data map[string]interface{}) (*models.Category, error) {
+func getCategoryFromData(id models.ID, data map[string]interface{}, isCreate bool) (*models.Category, error) {
 	title, err := utils.GetStringFromMap(data, "title")
 	if err != nil {
 		return nil, err
 	}
-	if title == nil {
+	if title == nil && isCreate {
 		return nil, errors.New("title is required")
 	}
 
@@ -71,7 +71,7 @@ func getCategoryFromData(id models.ID, data map[string]interface{}) (*models.Cat
 }
 
 func (ce *CategoryEntity) Create(id models.ID, data map[string]interface{}) error {
-	newCategory, err := getCategoryFromData(id, data)
+	newCategory, err := getCategoryFromData(id, data, true)
 	if err != nil {
 		return err
 	}
@@ -82,7 +82,7 @@ func (ce *CategoryEntity) Create(id models.ID, data map[string]interface{}) erro
 }
 
 func (ce *CategoryEntity) Update(id models.ID, data map[string]interface{}) error {
-	updatedBookmark, err := getCategoryFromData(id, data)
+	updatedBookmark, err := getCategoryFromData(id, data, false)
 	if err != nil {
 		return err
 	}
