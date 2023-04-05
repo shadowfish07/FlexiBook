@@ -15,8 +15,8 @@ func NewWebsiteService() *WebsiteService {
 }
 
 type Meta struct {
-	Title       string
-	Description string
+	Title       string `json:"title"`
+	Description string `json:"description"`
 }
 
 func (ws *WebsiteService) GetMeta(url string) (*Meta, error) {
