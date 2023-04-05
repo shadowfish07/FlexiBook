@@ -16,10 +16,10 @@ func NewEntity(entityType string) Entity {
 	switch entityType {
 	case models.OperationActionEntityBookmark:
 		return NewBookmarkEntity()
-	// case models.OperationEntityTypeCategory:
-	// 	return NewCategoryEntity(models.Category{}), nil
-	// case models.OperationEntityTypeTag:
-	// 	return NewTagEntity(models.Tag{}), nil
+	case models.OperationActionEntityCategory:
+		return NewCategoryEntity()
+	case models.OperationActionEntityTag:
+		return NewTagEntity()
 	default:
 		return nil
 	}
