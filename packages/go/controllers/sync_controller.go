@@ -63,12 +63,11 @@ func (sc *SyncController) PostIncrementalUpdate(ctx *gin.Context) {
 	}
 
 	completeReq := models.Operation{
-		Id:           req.Id,
-		UniqueId:     *req.UniqueId,
-		CreateAt:     *req.CreateAt,
-		ClientId:     req.ClientId,
-		ClientSecret: req.ClientSecret,
-		Actions:      req.Actions,
+		Id:       req.Id,
+		UniqueId: *req.UniqueId,
+		CreateAt: *req.CreateAt,
+		ClientId: req.ClientId,
+		Actions:  req.Actions,
 	}
 
 	afterOperations, err := sc.syncService.AddIncrementalUpdate(completeReq)
