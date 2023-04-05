@@ -63,11 +63,7 @@ export const useStorage = <T extends keyof StorageData>({
       throw new Error("this method is only supported when useKey is passed");
     }
 
-    console.log("updateRecord", id, value);
-
     const operationLog = getOperationLog();
-
-    console.log("operationLog", operationLog);
 
     setIsSaving(true);
     const finalData = {

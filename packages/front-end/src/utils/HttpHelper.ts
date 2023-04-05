@@ -14,16 +14,20 @@ export default class {
     return url;
   }
 
-  public async getMetaOfWebsite(
-    url: string
-  ): Promise<{ title: string; description: string } | null> {
-    return new Promise(async (resolve, reject) => {
-      if (!this.validUrl) resolve(null);
+  private sendRequest<T>(
+    url: string,
+    httpMethod: "GET" | "POST"
+  ): Promise<T | null> {
+    return new Promise<T | null>(async (resolve, reject) => {
+      if (!this.validUrl) {
+        resolve(null);
+        return;
+      }
       try {
-        const result = await fetch(
-          encodeURI(`${this.validUrl}/website/meta?url=${url}`)
-        );
-        const json = (await result.json()) as APIResult<WebsiteMetaResult>;
+        const result = await fetch(encodeURI(url), {
+          method: httpMethod,
+        });
+        const json = (await result.json()) as APIResult<T>;
         if (json.status === "error") {
           reject(new Error(json.message));
           return;
@@ -34,6 +38,15 @@ export default class {
         reject(new Error("获取网站信息失败"));
       }
     });
+  }
+
+  public async getMetaOfWebsite(
+    url: string
+  ): Promise<{ title: string; description: string } | null> {
+    return this.sendRequest<WebsiteMetaResult>(
+      `${this.validUrl}/website/meta?url=${url}`,
+      "GET"
+    );
   }
 
   public async getIconOfWebsite(url: string) {

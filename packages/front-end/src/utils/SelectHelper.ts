@@ -18,7 +18,11 @@ export default class {
   selectCategory(id: string): Category | undefined {
     if (id === DEFAULT_CATEGORY_ID)
       if (this.config)
-        return { id: DEFAULT_CATEGORY_ID, ...this.config.defaultCategory };
+        return {
+          id: DEFAULT_CATEGORY_ID,
+          ...this.config.defaultCategory,
+          createdAt: 0,
+        };
     return this.data.categories.get(id) ?? undefined;
   }
 
