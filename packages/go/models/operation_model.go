@@ -18,7 +18,7 @@ type Operation struct {
 
 type PartialOperation struct {
 	Id           int64             `json:"id" binding:"required,number"`
-	UniqueId     *string           `json:"uniqueId" binding:"omitempty,uuid"`
+	UniqueId     *string           `json:"uniqueId" binding:"omitempty"`
 	CreateAt     *int64            `json:"createAt" binding:"omitempty,number"`
 	ClientId     ID                `json:"clientId" binding:"required"`
 	ClientSecret ID                `json:"clientSecret" binding:"required"`
