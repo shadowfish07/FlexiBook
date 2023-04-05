@@ -1,8 +1,6 @@
 package services
 
 import (
-	"errors"
-
 	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 	"github.com/shadowfish07/FlexiBook/models"
@@ -30,8 +28,8 @@ func (bs *BookmarkService) newBookmark(bookmark models.Bookmark) (*models.Bookma
 		bookmark.CreatedAt = utils.GetTimestamp()
 	}
 
-	if bookmark, _ := bs.GetBookmark(models.ID(bookmark.ID)); bookmark != nil {
-		return nil, errors.New("ID already exists")
+	if bookmark, err := bs.GetBookmark(models.ID(bookmark.ID)); bookmark != nil {
+		return nil, err
 	}
 
 	err := validator.New().Struct(bookmark)

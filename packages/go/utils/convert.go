@@ -18,14 +18,22 @@ func GetStringFromMap(data map[string]interface{}, key string) (*string, error) 
 }
 
 func GetInt64FromMap(data map[string]interface{}, key string) (*int64, error) {
-	value, ok := data[key].(int64)
-	if !ok {
-		if data[key] == nil {
-			return nil, nil
+	var value int64
+	floatValue, ok := data[key].(float64)
+
+	if ok {
+		value = int64(floatValue)
+		return &value, nil
+	} else {
+		value, ok = data[key].(int64)
+		if !ok {
+			if data[key] == nil {
+				return nil, nil
+			}
+			return nil, fmt.Errorf("key '%s' is not an int64", key)
 		}
-		return nil, fmt.Errorf("key '%s' is not an int64", key)
+		return &value, nil
 	}
-	return &value, nil
 }
 
 func GetBoolFromMap(data map[string]interface{}, key string) (*bool, error) {
