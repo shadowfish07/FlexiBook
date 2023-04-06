@@ -41,7 +41,7 @@ func (bs *BookmarkService) newBookmark(bookmark models.Bookmark) (*models.Bookma
 		return &bookmark, nil
 	} else {
 		if existingBookmark != nil {
-			return nil, errors.New("ID already exists")
+			return nil, errors.New("Bookmark ID already exists")
 		}
 	}
 

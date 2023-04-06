@@ -28,10 +28,10 @@ func (ss *SyncService) GetIncrementalUpdate(clientIncrementalId int64) (models.O
 // 新的增量更新会被添加到operation list的末尾，并返回新增量更新原ID到最新末尾的所有操作(不包含自己)
 // 比如
 // 现有的operation list为 [1,2,3,4,5,6,7,8,9,10]
-// 新增的operation为 11 （新增的operation是11，但不会在本次返回)
-// 则返回的operation list为 []
-// 如果新增的operation为 6 （新增的operation是11，但不会在本次返回)
-// 则返回的operation list为 [6,7,8,9,10]
+// 新增的operation为 11 （新增的operation是11，会在本次返回)
+// 则返回的operation list为 [11]
+// 如果新增的operation为 6 （新增的operation是11，会在本次返回)
+// 则返回的operation list为 [6,7,8,9,10,11]
 func (ss *SyncService) AddIncrementalUpdate(operation models.Operation) (models.OperationList, error) {
 	afterOperations, err := ss.operationRepository.GetAfter(operation.Id)
 	if err != nil {
@@ -47,28 +47,17 @@ func (ss *SyncService) AddIncrementalUpdate(operation models.Operation) (models.
 
 	finalOperation := append(afterOperations, operation)
 
-	if err := ss.sync(finalOperation); err != nil {
+	if err := ss.processOperation(operation); err != nil {
 		return nil, err
 	}
 
 	ss.operationRepository.Add(operation)
-	return afterOperations, nil
+	return finalOperation, nil
 }
 
-func (ss *SyncService) sync(operations models.OperationList) error {
-	processOperation := func(operation models.Operation) error {
-		for _, action := range operation.Actions {
-			err := ProcessAction(ss.entity.CreateEntity(action.Entity), action.EntityId, action.Type, action.Data)
-			if err != nil {
-				return err
-			}
-		}
-
-		return nil
-	}
-
-	for _, operation := range operations {
-		err := processOperation(operation)
+func (ss *SyncService) processOperation(operation models.Operation) error {
+	for _, action := range operation.Actions {
+		err := ProcessAction(ss.entity.CreateEntity(action.Entity), action.EntityId, action.Type, action.Data)
 		if err != nil {
 			return err
 		}

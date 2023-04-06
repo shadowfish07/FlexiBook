@@ -31,7 +31,7 @@ func (ts *TagService) newTag(tag models.Tag) (*models.Tag, error) {
 	}
 
 	if existingTag, _ := ts.GetTag(models.ID(tag.ID)); existingTag != nil {
-		return nil, errors.New("ID already exists")
+		return nil, errors.New("Tag ID already exists")
 	}
 
 	err := validator.New().Struct(tag)

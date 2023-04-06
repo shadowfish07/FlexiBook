@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/gin-gonic/gin"
@@ -72,7 +73,8 @@ func TestGetIncrementalUpdate(t *testing.T) {
 }
 
 func TestPostIncrementalUpdate(t *testing.T) {
-	engine, err := wire.InitializeApp("data", true)
+	os.RemoveAll("/home/shadowfish/git/FlexiBook/packages/go/controllers/test_data")
+	engine, err := wire.InitializeApp("test_data", false)
 
 	if err != nil {
 		t.Fatalf("Failed to initialize app with memory fs: %v", err)

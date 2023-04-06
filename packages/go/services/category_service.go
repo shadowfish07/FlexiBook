@@ -31,7 +31,7 @@ func (cs *CategoryService) newCategory(category models.Category) (*models.Catego
 	}
 
 	if existingCategory, _ := cs.GetCategory(models.ID(category.ID)); existingCategory != nil {
-		return nil, errors.New("ID already exists")
+		return nil, errors.New("Category ID already exists")
 	}
 
 	err := validator.New().Struct(category)
