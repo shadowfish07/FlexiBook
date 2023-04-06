@@ -16,15 +16,11 @@ type Operation struct {
 	cache             models.OperationList
 }
 
-func init() {
-	CachedOperation = NewOperation()
-}
-
-func NewOperation() *Operation {
+func NewOperation(storage *Storage) *Operation {
 	return &Operation{
 		operationFileName: "operation.json",
 		hasInit:           false,
-		storage:           NewStorage(),
+		storage:           storage,
 		cache:             make(models.OperationList, 0),
 	}
 }
@@ -74,5 +70,3 @@ func (o *Operation) Get() (models.OperationList, error) {
 	}
 	return o.cache, nil
 }
-
-var CachedOperation *Operation

@@ -9,12 +9,15 @@ import (
 type SyncService struct {
 	operationRepository *repositories.OperationRepository
 	bookmarkService     *BookmarkService
+	entity              *Entity
 }
 
-func NewSyncService() *SyncService {
+func NewSyncService(operationRepository *repositories.OperationRepository,
+	bookmarkService *BookmarkService, entity *Entity) *SyncService {
 	return &SyncService{
-		operationRepository: repositories.NewOperationRepository(),
-		bookmarkService:     NewBookmarkService(),
+		operationRepository: operationRepository,
+		bookmarkService:     bookmarkService,
+		entity:              entity,
 	}
 }
 
@@ -55,7 +58,7 @@ func (ss *SyncService) AddIncrementalUpdate(operation models.Operation) (models.
 func (ss *SyncService) sync(operations models.OperationList) error {
 	processOperation := func(operation models.Operation) error {
 		for _, action := range operation.Actions {
-			err := ProcessAction(NewEntity(action.Entity), action.EntityId, action.Type, action.Data)
+			err := ProcessAction(ss.entity.CreateEntity(action.Entity), action.EntityId, action.Type, action.Data)
 			if err != nil {
 				return err
 			}

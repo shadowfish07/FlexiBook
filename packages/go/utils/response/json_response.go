@@ -12,5 +12,6 @@ func JSONResponse(c *gin.Context, data any) {
 		"data":   data,
 	}
 
+	c.Set("responseData", response)
 	c.JSON(http.StatusOK, response)
 }

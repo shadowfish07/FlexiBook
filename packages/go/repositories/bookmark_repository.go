@@ -11,9 +11,11 @@ type BookmarkRepository struct {
 	database *storage.Database
 }
 
-func NewBookmarkRepository() *BookmarkRepository {
+var ErrorBookmarkNotFind = errors.New("bookmark not found")
+
+func NewBookmarkRepository(database *storage.Database) *BookmarkRepository {
 	return &BookmarkRepository{
-		database: storage.CachedDatabase,
+		database: database,
 	}
 }
 
@@ -25,7 +27,7 @@ func (br *BookmarkRepository) Get(id models.ID) (*models.Bookmark, error) {
 
 	bookmark, ok := db.Bookmarks[string(id)]
 	if !ok {
-		return nil, errors.New("bookmark not found")
+		return nil, ErrorBookmarkNotFind
 	}
 
 	return &bookmark, nil

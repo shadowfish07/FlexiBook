@@ -11,9 +11,9 @@ type CategoryEntity struct {
 	categoryService *CategoryService
 }
 
-func NewCategoryEntity() *CategoryEntity {
+func NewCategoryEntity(categoryService *CategoryService) *CategoryEntity {
 	return &CategoryEntity{
-		categoryService: NewCategoryService(),
+		categoryService: categoryService,
 	}
 }
 

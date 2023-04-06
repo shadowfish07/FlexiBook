@@ -4,16 +4,18 @@ import (
 	"io"
 	"os"
 
-	"github.com/shadowfish07/FlexiBook/config"
+	"github.com/spf13/afero"
 )
 
 type Storage struct {
 	MountDir string
+	Fs       afero.Fs
 }
 
-func NewStorage() *Storage {
+func NewStorage(mountDir string, fs afero.Fs) *Storage {
 	return &Storage{
-		MountDir: config.MountDir,
+		MountDir: mountDir,
+		Fs:       fs,
 	}
 }
 
@@ -26,7 +28,7 @@ func (s *Storage) Save(fileName string, newContext []byte) error {
 
 	filePath := s.MountDir + "/" + fileName
 
-	file, err := os.Create(filePath)
+	file, err := s.Fs.Create(filePath)
 	if err != nil {
 		return err
 	}
@@ -55,7 +57,7 @@ func (s *Storage) Load(fileName string) ([]byte, error) {
 
 	filePath := s.MountDir + "/" + fileName
 
-	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_RDWR, 0644)
+	file, err := s.Fs.OpenFile(filePath, os.O_CREATE|os.O_RDWR, 0644)
 	if err != nil {
 		return nil, err
 	}

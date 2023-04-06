@@ -6,26 +6,36 @@ import (
 	"github.com/shadowfish07/FlexiBook/models"
 )
 
-type Entity interface {
-	Create(id models.ID, data map[string]interface{}) error
-	Update(id models.ID, data map[string]interface{}) error
-	Delete(id models.ID) error
+type Entity struct {
+	BookmarkEntity *BookmarkEntity
+	CategoryEntity *CategoryEntity
+	TagEntity      *TagEntity
 }
 
-func NewEntity(entityType string) Entity {
+func NewEntity(BookmarkEntity *BookmarkEntity,
+	CategoryEntity *CategoryEntity,
+	TagEntity *TagEntity) *Entity {
+	return &Entity{
+		BookmarkEntity: BookmarkEntity,
+		CategoryEntity: CategoryEntity,
+		TagEntity:      TagEntity,
+	}
+}
+
+func (e *Entity) CreateEntity(entityType string) models.Entity {
 	switch entityType {
 	case models.OperationActionEntityBookmark:
-		return NewBookmarkEntity()
+		return e.BookmarkEntity
 	case models.OperationActionEntityCategory:
-		return NewCategoryEntity()
+		return e.CategoryEntity
 	case models.OperationActionEntityTag:
-		return NewTagEntity()
+		return e.TagEntity
 	default:
 		return nil
 	}
 }
 
-func ProcessAction(entity Entity, entityId models.ID, actionType string, data map[string]interface{}) error {
+func ProcessAction(entity models.Entity, entityId models.ID, actionType string, data map[string]interface{}) error {
 	switch actionType {
 	case models.OperationActionTypeCreate:
 		return entity.Create(entityId, data)

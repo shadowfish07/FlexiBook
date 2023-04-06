@@ -11,9 +11,9 @@ type BookmarkEntity struct {
 	bookmarkService *BookmarkService
 }
 
-func NewBookmarkEntity() *BookmarkEntity {
+func NewBookmarkEntity(bookmarkService *BookmarkService) *BookmarkEntity {
 	return &BookmarkEntity{
-		bookmarkService: NewBookmarkService(),
+		bookmarkService: bookmarkService,
 	}
 }
 

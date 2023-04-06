@@ -10,5 +10,6 @@ func ErrorResponse(c *gin.Context, httpStatus int, err error) {
 		"message": err.Error(),
 	}
 
+	c.Set("responseData", response)
 	c.JSON(httpStatus, response)
 }

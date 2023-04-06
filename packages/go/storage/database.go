@@ -14,11 +14,7 @@ type Database struct {
 	hasInit          bool
 }
 
-func init() {
-	CachedDatabase = NewDatabase()
-}
-
-func NewDatabase() *Database {
+func NewDatabase(storage *Storage) *Database {
 	return &Database{cache: &models.Database{
 		Tags:       make(models.Tags),
 		Categories: make(models.Categories),
@@ -26,7 +22,7 @@ func NewDatabase() *Database {
 	},
 		DatabaseFileName: "database.json",
 		hasInit:          false,
-		storage:          NewStorage(),
+		storage:          storage,
 	}
 }
 
@@ -73,5 +69,3 @@ func (dr *Database) Get() (*models.Database, error) {
 	}
 	return dr.cache, nil
 }
-
-var CachedDatabase *Database

@@ -17,9 +17,9 @@ type SyncController struct {
 	syncService *services.SyncService
 }
 
-func NewSyncController() *SyncController {
+func NewSyncController(syncService *services.SyncService) *SyncController {
 	return &SyncController{
-		syncService: services.NewSyncService(),
+		syncService: syncService,
 	}
 }
 

@@ -14,9 +14,9 @@ type TagService struct {
 	tagRepository *repositories.TagRepository
 }
 
-func NewTagService() *TagService {
+func NewTagService(tagRepository *repositories.TagRepository) *TagService {
 	return &TagService{
-		tagRepository: repositories.NewTagRepository(),
+		tagRepository: tagRepository,
 	}
 }
 

@@ -11,9 +11,9 @@ type TagRepository struct {
 	database *storage.Database
 }
 
-func NewTagRepository() *TagRepository {
+func NewTagRepository(database *storage.Database) *TagRepository {
 	return &TagRepository{
-		database: storage.CachedDatabase,
+		database: database,
 	}
 }
 

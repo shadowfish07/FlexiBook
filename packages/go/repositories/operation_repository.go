@@ -9,9 +9,9 @@ type OperationRepository struct {
 	operationStorage *storage.Operation
 }
 
-func NewOperationRepository() *OperationRepository {
+func NewOperationRepository(operationStorage *storage.Operation) *OperationRepository {
 	return &OperationRepository{
-		operationStorage: storage.CachedOperation,
+		operationStorage: operationStorage,
 	}
 }
 

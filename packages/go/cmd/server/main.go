@@ -1,14 +1,20 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/shadowfish07/FlexiBook/routes"
+	"log"
+
+	"github.com/shadowfish07/FlexiBook/config"
+	"github.com/shadowfish07/FlexiBook/wire"
 )
 
 func main() {
-	router := gin.Default()
+	engine, err := wire.InitializeApp(config.MountDir, false)
+	if err != nil {
+		log.Fatalf("Failed to initialize app: %v", err)
+	}
 
-	routes.RegisterRoutes(router)
-
-	router.Run(":8080")
+	err = engine.Run(":8080")
+	if err != nil {
+		log.Fatalf("Failed to run gin.Engine: %v", err)
+	}
 }

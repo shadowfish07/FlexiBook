@@ -13,9 +13,9 @@ type BookmarkController struct {
 	bookmarkService *services.BookmarkService
 }
 
-func NewBookmarkController() *BookmarkController {
+func NewBookmarkController(bookmarkService *services.BookmarkService) *BookmarkController {
 	return &BookmarkController{
-		bookmarkService: services.NewBookmarkService(),
+		bookmarkService: bookmarkService,
 	}
 }
 

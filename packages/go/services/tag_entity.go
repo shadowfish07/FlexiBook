@@ -11,9 +11,9 @@ type TagEntity struct {
 	tagService *TagService
 }
 
-func NewTagEntity() *TagEntity {
+func NewTagEntity(tagService *TagService) *TagEntity {
 	return &TagEntity{
-		tagService: NewTagService(),
+		tagService: tagService,
 	}
 }
 

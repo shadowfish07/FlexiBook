@@ -10,11 +10,11 @@ import (
 )
 
 type WebsiteController struct {
-	websiteService services.WebsiteService
+	websiteService *services.WebsiteService
 }
 
-func NewWebsiteController() *WebsiteController {
-	return &WebsiteController{websiteService: *services.NewWebsiteService()}
+func NewWebsiteController(websiteService *services.WebsiteService) *WebsiteController {
+	return &WebsiteController{websiteService: websiteService}
 }
 
 func (wc *WebsiteController) GetMeta(ctx *gin.Context) {

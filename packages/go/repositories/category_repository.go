@@ -11,9 +11,9 @@ type CategoryRepository struct {
 	database *storage.Database
 }
 
-func NewCategoryRepository() *CategoryRepository {
+func NewCategoryRepository(database *storage.Database) *CategoryRepository {
 	return &CategoryRepository{
-		database: storage.CachedDatabase,
+		database: database,
 	}
 }
 
