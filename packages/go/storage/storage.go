@@ -3,6 +3,7 @@ package storage
 import (
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/spf13/afero"
 )
@@ -20,13 +21,14 @@ func NewStorage(mountDir string, fs afero.Fs) *Storage {
 }
 
 func (s *Storage) Save(fileName string, newContext []byte) error {
+	filePath := s.MountDir + "/" + fileName
+	dirPath := filepath.Dir(filePath)
+
 	// 避免文件目录不存在
-	err := os.MkdirAll(s.MountDir, 0755)
+	err := os.MkdirAll(dirPath, 0755)
 	if err != nil {
 		return err
 	}
-
-	filePath := s.MountDir + "/" + fileName
 
 	file, err := s.Fs.Create(filePath)
 	if err != nil {
