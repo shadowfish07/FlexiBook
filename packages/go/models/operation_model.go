@@ -2,7 +2,7 @@ package models
 
 type OperationAction struct {
 	Type     string                 `json:"type" binding:"required,oneof=update create delete"`
-	Entity   string                 `json:"entity" binding:"required,oneof=bookmarks categories tags blob"`
+	Entity   string                 `json:"entity" binding:"required,oneof=bookmarks categories tags"`
 	EntityId ID                     `json:"entityId" binding:"required"`
 	Data     map[string]interface{} `json:"data" binding:"required"`
 }
@@ -31,4 +31,3 @@ var OperationActionTypeDelete = "delete"
 var OperationActionEntityBookmark = "bookmarks"
 var OperationActionEntityCategory = "categories"
 var OperationActionEntityTag = "tags"
-var OperationActionEntityBlob = "blob"

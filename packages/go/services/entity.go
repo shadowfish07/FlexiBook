@@ -10,18 +10,15 @@ type Entity struct {
 	BookmarkEntity *BookmarkEntity
 	CategoryEntity *CategoryEntity
 	TagEntity      *TagEntity
-	BlobEntity     *BlobEntity
 }
 
 func NewEntity(BookmarkEntity *BookmarkEntity,
 	CategoryEntity *CategoryEntity,
-	TagEntity *TagEntity,
-	BlobEntity *BlobEntity) *Entity {
+	TagEntity *TagEntity) *Entity {
 	return &Entity{
 		BookmarkEntity: BookmarkEntity,
 		CategoryEntity: CategoryEntity,
 		TagEntity:      TagEntity,
-		BlobEntity:     BlobEntity,
 	}
 }
 
@@ -33,8 +30,6 @@ func (e *Entity) CreateEntity(entityType string) models.Entity {
 		return e.CategoryEntity
 	case models.OperationActionEntityTag:
 		return e.TagEntity
-	case models.OperationActionEntityBlob:
-		return e.BlobEntity
 	default:
 		return nil
 	}

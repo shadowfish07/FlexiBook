@@ -37,11 +37,7 @@ func InitializeApp(mountDir string, useMemoryFs bool) (*gin.Engine, error) {
 	tagRepository := repositories.NewTagRepository(database)
 	tagService := services.NewTagService(tagRepository)
 	tagEntity := services.NewTagEntity(tagService)
-	blob := storage.NewBlob(storageStorage)
-	blobRepository := repositories.NewBlobRepository(blob)
-	blobService := services.NewBlobService(blobRepository)
-	blobEntity := services.NewBlobEntity(blobService)
-	entity := services.NewEntity(bookmarkEntity, categoryEntity, tagEntity, blobEntity)
+	entity := services.NewEntity(bookmarkEntity, categoryEntity, tagEntity)
 	syncService := services.NewSyncService(operationRepository, bookmarkService, entity)
 	syncController := controllers.NewSyncController(syncService)
 	engine := routes.RegisterRoutes(websiteController, systemController, bookmarkController, syncController)
@@ -52,11 +48,11 @@ func InitializeApp(mountDir string, useMemoryFs bool) (*gin.Engine, error) {
 
 var controllerSet = wire.NewSet(controllers.NewBookmarkController, controllers.NewSyncController, controllers.NewSystemController, controllers.NewWebsiteController)
 
-var repositorySet = wire.NewSet(repositories.NewBookmarkRepository, repositories.NewCategoryRepository, repositories.NewOperationRepository, repositories.NewTagRepository, repositories.NewBlobRepository)
+var repositorySet = wire.NewSet(repositories.NewBookmarkRepository, repositories.NewCategoryRepository, repositories.NewOperationRepository, repositories.NewTagRepository)
 
-var serviceSet = wire.NewSet(services.NewEntity, services.NewBookmarkEntity, services.NewCategoryEntity, services.NewTagEntity, services.NewBlobEntity, services.NewBookmarkService, services.NewCategoryService, services.NewTagService, services.NewWebsiteService, services.NewSyncService, services.NewBlobService)
+var serviceSet = wire.NewSet(services.NewEntity, services.NewBookmarkEntity, services.NewCategoryEntity, services.NewTagEntity, services.NewBookmarkService, services.NewCategoryService, services.NewTagService, services.NewWebsiteService, services.NewSyncService)
 
-var storageSet = wire.NewSet(storage.NewDatabase, storage.NewOperation, storage.NewBlob, NewStorageWithAfero)
+var storageSet = wire.NewSet(storage.NewDatabase, storage.NewOperation, NewStorageWithAfero)
 
 func NewStorageWithAfero(mountDir string, useMemoryFs bool) *storage.Storage {
 	var fs afero.Fs
