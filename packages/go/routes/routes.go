@@ -9,6 +9,7 @@ import (
 func RegisterRoutes(websiteController *controllers.WebsiteController, systemController *controllers.SystemController, bookmarkController *controllers.BookmarkController, syncController *controllers.SyncController) *gin.Engine {
 	router := gin.Default()
 	router.Use(middleware.RequestLoggerMiddleware())
+	router.Use(middleware.CORSMiddleware())
 
 	router.GET("/website/meta", websiteController.GetMeta)
 	router.GET("/website/icons", websiteController.GetIcon)
