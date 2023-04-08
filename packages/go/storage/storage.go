@@ -68,3 +68,9 @@ func (s *Storage) Load(fileName string) ([]byte, error) {
 
 	return io.ReadAll(file)
 }
+
+func (s *Storage) Delete(fileName string) error {
+	filePath := s.MountDir + "/" + fileName
+
+	return s.Fs.Remove(filePath)
+}
