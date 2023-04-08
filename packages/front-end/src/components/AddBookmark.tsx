@@ -107,7 +107,7 @@ export const AddBookmark = ({ fromExtension, onSave }: Props) => {
       });
     httpHelper.getIconOfWebsite(urlWithProtocol).then(async (res) => {
       if (!res) return;
-      const iconId = await saveBlob("iconBlob", res);
+      const iconId = await saveBlob(res);
       updateField(id, "icon", iconId);
     });
   };

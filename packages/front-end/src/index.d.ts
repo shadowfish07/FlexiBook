@@ -76,8 +76,6 @@ declare type Config = {
   backendURL?: string;
 };
 
-declare type BlobKeys = "iconBlob";
-
 declare type TransformTreeOfType<T extends "categories" | "tags"> =
   T extends "categories" ? Category : Tag;
 
