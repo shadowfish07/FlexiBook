@@ -51,7 +51,7 @@ func (or *OperationRepository) GetAfter(id int64) (models.OperationList, error) 
 
 	var result models.OperationList
 	for _, operation := range operations {
-		if operation.Id > id {
+		if operation.Id >= id {
 			result = append(result, operation)
 		}
 	}
