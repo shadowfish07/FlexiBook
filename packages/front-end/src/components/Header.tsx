@@ -1,4 +1,4 @@
-import { Button, Popover, Space } from "@arco-design/web-react";
+import { Button, Input, Popover, Space } from "@arco-design/web-react";
 import Header from "@arco-design/web-react/es/Layout/header";
 import { IconSettings } from "@arco-design/web-react/icon";
 import { memo, useContext, useState } from "react";
@@ -6,11 +6,19 @@ import { AddBookmarkPopover, Config } from ".";
 import { useSavingState } from "../store/useSavingState";
 import { pick } from "lodash";
 import { SyncButton } from "./SyncButton";
+import { useHeaderState } from "../store/useHeaderState";
 
 export default memo(() => {
   const { isSavingLocal } = useSavingState((state) =>
     pick(state, ["isSavingLocal"])
   );
+  const { searchText, setSearchText } = useHeaderState((state) =>
+    pick(state, ["searchText", "setSearchText"])
+  );
+
+  const handleSearchChange = (value: string) => {
+    setSearchText(value);
+  };
 
   return (
     <Header
@@ -19,10 +27,19 @@ export default memo(() => {
         justifyContent: "space-between",
         alignItems: "center",
         paddingTop: 10,
+        paddingLeft: 10,
         paddingRight: 10,
       }}
     >
-      <div className="left">{isSavingLocal && <span>保存中(本地)</span>}</div>
+      {/* <div className="left">{isSavingLocal && <span>保存中(本地)</span>}</div> */}
+      <div className="left" style={{ width: "60%" }}>
+        <Input.Search
+          allowClear
+          placeholder="搜索书签"
+          style={{ width: "100%" }}
+          onChange={handleSearchChange}
+        />
+      </div>
       <div className="right">
         <SyncButton />
         <Space>
