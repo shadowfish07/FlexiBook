@@ -37,7 +37,7 @@ export default class {
         resolve(json.data);
       } catch (error) {
         console.log(error);
-        reject(new Error("获取网站信息失败"));
+        reject("接口异常");
       }
     });
   }
@@ -58,6 +58,15 @@ export default class {
       `${this.validUrl}/sync/incremental`,
       "POST",
       data
+    );
+  }
+
+  public async getRemoteUpdate(
+    incrementalUpdateSerialNumber: number
+  ): Promise<OperationLog[] | null> {
+    return this.sendRequest<OperationLog[]>(
+      `${this.validUrl}/sync/incremental/${incrementalUpdateSerialNumber}`,
+      "GET"
     );
   }
 

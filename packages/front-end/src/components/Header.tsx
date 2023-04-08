@@ -5,6 +5,7 @@ import { memo, useContext, useState } from "react";
 import { AddBookmarkPopover, Config } from ".";
 import { useSavingState } from "../store/useSavingState";
 import { pick } from "lodash";
+import { SyncButton } from "./SyncButton";
 
 export default memo(() => {
   const { isSavingLocal } = useSavingState((state) =>
@@ -21,16 +22,23 @@ export default memo(() => {
         paddingRight: 10,
       }}
     >
-      <div>{isSavingLocal && <span>保存中(本地)</span>}</div>
-      <Space>
-        <Config
-          renderButton={(openDrawer) => (
-            <Button type="text" icon={<IconSettings />} onClick={openDrawer} />
-          )}
-        />
+      <div className="left">{isSavingLocal && <span>保存中(本地)</span>}</div>
+      <div className="right">
+        <SyncButton />
+        <Space>
+          <Config
+            renderButton={(openDrawer) => (
+              <Button
+                type="text"
+                icon={<IconSettings />}
+                onClick={openDrawer}
+              />
+            )}
+          />
 
-        <AddBookmarkPopover />
-      </Space>
+          <AddBookmarkPopover />
+        </Space>
+      </div>
     </Header>
   );
 });

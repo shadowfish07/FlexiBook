@@ -32,6 +32,7 @@ func (ss *SyncService) GetIncrementalUpdate(clientIncrementalId int64) (models.O
 // 则返回的operation list为 [11]
 // 如果新增的operation为 6 （新增的operation是11，会在本次返回)
 // 则返回的operation list为 [6,7,8,9,10,11]
+// 返回新增的operation的原因是为了让客户端知道最新的递增ID
 func (ss *SyncService) AddIncrementalUpdate(operation models.Operation) (models.OperationList, error) {
 	afterOperations, err := ss.operationRepository.GetAfter(operation.Id + 1)
 	if err != nil {

@@ -2,6 +2,8 @@ import { nanoid } from "nanoid";
 import HttpHelper from "./HttpHelper";
 import { getTimestamp } from "./utils";
 import { BatchSyncReceiver } from "./BatchSyncReceiver";
+import { isUndefined } from "lodash";
+import { Message } from "@arco-design/web-react";
 
 class BatchSyncSender {
   private httpHelper: HttpHelper | undefined;
@@ -36,19 +38,28 @@ class BatchSyncSender {
     this.bathSyncReceiver = bathSyncReceiver;
   }
 
-  addBatchedAction(action: OperationLogAction) {
-    if (this.timer) {
-      clearTimeout(this.timer);
-      this.timer = undefined;
+  addBatchedAction(action: OperationLogAction, autoSyncAfter?: number) {
+    if (!isUndefined(autoSyncAfter)) {
+      if (this.timer) {
+        clearTimeout(this.timer);
+        this.timer = undefined;
+      }
+      this.timer = window.setTimeout(() => {
+        this.syncBatchedAction();
+      }, autoSyncAfter);
     }
-    this.timer = window.setTimeout(() => {
-      this.syncBatchedAction();
-    }, 5000);
 
     this.batchedActionList.push(action);
   }
 
-  syncBatchedAction() {
+  get isBatchedActionListEmpty() {
+    return this.batchedActionList.length === 0;
+  }
+
+  async syncBatchedAction(): Promise<{
+    uploadCount: number;
+    downloadCount: number;
+  }> {
     this.timer = undefined;
 
     if (!this.httpHelper) {
@@ -65,8 +76,13 @@ class BatchSyncSender {
     }
 
     if (this.batchedActionList.length === 0) {
-      return;
+      return {
+        uploadCount: 0,
+        downloadCount: 0,
+      };
     }
+
+    const uploadCount = this.batchedActionList.length;
 
     const operationLog: OperationLog = {
       id: this.incrementalUpdateSerialNumber,
@@ -76,13 +92,20 @@ class BatchSyncSender {
       actions: this.batchedActionList,
     };
 
-    this.httpHelper.syncLocalUpdate(operationLog).then((operationLogList) => {
-      if (operationLogList) {
-        this.bathSyncReceiver?.syncLocalData(operationLogList);
-      }
-    });
+    const operationLogList = await this.httpHelper.syncLocalUpdate(
+      operationLog
+    );
+
+    if (operationLogList) {
+      this.bathSyncReceiver?.syncLocalData(operationLogList);
+    }
 
     this.batchedActionList = [];
+
+    return {
+      uploadCount,
+      downloadCount: operationLogList?.length ?? 0,
+    };
   }
 }
 

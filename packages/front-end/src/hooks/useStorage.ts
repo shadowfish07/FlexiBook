@@ -31,6 +31,8 @@ export type UseStorageReturnType<
   isSaving: boolean;
   selectHelper: SelectHelper;
   updateHelper: UpdateHelper;
+  batchSyncReceiver: BatchSyncReceiver;
+  setupBatchSyncSender: () => void;
 };
 
 type FieldType<T> = keyof KeyOfMapType<execType<T>>;
@@ -75,7 +77,7 @@ export const useStorage = <T extends keyof StorageData>({
       throw new Error("this method is only supported when useKey is passed");
     }
 
-    sendBatchSyncUpdate(getOperationAction());
+    config.backendURL && sendBatchSyncUpdate(getOperationAction());
 
     setIsSavingLocal(true);
     const finalData = {
@@ -142,14 +144,15 @@ export const useStorage = <T extends keyof StorageData>({
       throw new Error("this method is only supported when useKey is passed");
     }
 
-    sendBatchSyncUpdate({
-      type: isAddingRecord(useKey, id) ? "create" : "update",
-      entity: useKey,
-      entityId: id,
-      data: {
-        [field]: value,
-      },
-    });
+    config.backendURL &&
+      sendBatchSyncUpdate({
+        type: isAddingRecord(useKey, id) ? "create" : "update",
+        entity: useKey,
+        entityId: id,
+        data: {
+          [field]: value,
+        },
+      });
 
     setIsSavingLocal(true);
     const finalData = {
@@ -184,15 +187,21 @@ export const useStorage = <T extends keyof StorageData>({
     isSaving: isSavingLocal,
     selectHelper: new SelectHelper(data, config),
     updateHelper: new UpdateHelper(data, config, useKey, updateField),
+    batchSyncReceiver,
+    setupBatchSyncSender,
   };
 
-  function sendBatchSyncUpdate(operationAction: OperationLogAction) {
+  function setupBatchSyncSender() {
     batchSyncSender.setClientId(config.clientId);
     batchSyncSender.setBathSyncReceiver(batchSyncReceiver);
     batchSyncSender.setHttpHelper(httpHelper);
     batchSyncSender.setIncrementalUpdateSerialNumber(
       incrementalUpdateSerialNumber + 1
     );
+  }
+
+  function sendBatchSyncUpdate(operationAction: OperationLogAction) {
+    setupBatchSyncSender();
     batchSyncSender.addBatchedAction(operationAction);
   }
 
