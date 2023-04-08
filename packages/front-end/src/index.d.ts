@@ -89,7 +89,8 @@ declare type BookmarkDropResult =
     ));
 
 declare type OperationLog = {
-  id: string;
+  id: number; // 序列ID
+  uniqueId: string;
   clientId: string;
   createdAt: number;
   actions: OperationLogAction[];

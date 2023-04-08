@@ -1,7 +1,8 @@
 import { useContext, useState } from "react";
-import { SavingContext } from "../main";
 import { useConfigState } from "../store/useConfigState";
 import { HttpHelper } from "../utils";
+import { useSavingState } from "../store/useSavingState";
+import { pick } from "lodash";
 
 export type UseConfigReturnType = {
   config: Config;
@@ -15,26 +16,28 @@ export const useConfig = (): UseConfigReturnType => {
     state.config,
     state.setConfig,
   ]);
-  const { setIsSaving } = useContext(SavingContext);
+  const { setIsSavingLocal } = useSavingState((state) =>
+    pick(state, ["setIsSavingLocal"])
+  );
 
   const updateConfigByKey = <T extends keyof Config>(
     key: T,
     value: Config[T]
   ) => {
-    setIsSaving(true);
+    setIsSavingLocal(true);
 
     const newConfig: Config = {
       ...config,
       [key]: value,
     };
 
-    setConfig(newConfig).then(() => setIsSaving(false));
+    setConfig(newConfig).then(() => setIsSavingLocal(false));
   };
 
   const updateConfig = (newConfig: Config) => {
-    setIsSaving(true);
+    setIsSavingLocal(true);
 
-    setConfig(newConfig).then(() => setIsSaving(false));
+    setConfig(newConfig).then(() => setIsSavingLocal(false));
   };
 
   return {

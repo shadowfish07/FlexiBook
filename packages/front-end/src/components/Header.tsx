@@ -3,11 +3,13 @@ import Header from "@arco-design/web-react/es/Layout/header";
 import { IconSettings } from "@arco-design/web-react/icon";
 import { memo, useContext, useState } from "react";
 import { AddBookmarkPopover, Config } from ".";
-import { SavingContext } from "../main";
+import { useSavingState } from "../store/useSavingState";
+import { pick } from "lodash";
 
 export default memo(() => {
-  const { isSaving, setIsSaving } = useContext(SavingContext);
-  const [visible, setVisible] = useState(false);
+  const { isSavingLocal } = useSavingState((state) =>
+    pick(state, ["isSavingLocal"])
+  );
 
   return (
     <Header
@@ -19,7 +21,7 @@ export default memo(() => {
         paddingRight: 10,
       }}
     >
-      <div>{isSaving && <span>保存中</span>}</div>
+      <div>{isSavingLocal && <span>保存中(本地)</span>}</div>
       <Space>
         <Config
           renderButton={(openDrawer) => (

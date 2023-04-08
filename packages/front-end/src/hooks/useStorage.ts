@@ -1,11 +1,13 @@
-import dayjs from "dayjs";
 import { nanoid } from "nanoid";
 import { useEffect, useContext, useRef } from "react";
-import { SavingContext } from "../main";
 import { useDataState } from "../store/useDataState";
-import { getTimestamp, SelectHelper } from "../utils";
+import { useIncrementalUpdateState } from "../store/useIncrementalUpdateState";
+import { batchSyncSender, getTimestamp, SelectHelper } from "../utils";
 import UpdateHelper from "../utils/UpdateHelper";
 import { useConfig } from "./useConfig";
+import { pick } from "lodash";
+import { useSavingState } from "../store/useSavingState";
+import { BatchSyncReceiver } from "../utils/BatchSyncReceiver";
 
 type Props<T extends keyof StorageData | StorageData = StorageData> = {
   useKey?: T;
@@ -45,9 +47,19 @@ export const useStorage = <T extends keyof StorageData>({
   useKey,
 }: Props<T> = {}): UseStorageReturnType<T> => {
   const [data, setData] = useDataState((state) => [state.data, state.setData]);
-  const { isSaving, setIsSaving } = useContext(SavingContext);
+  const { isSavingLocal, setIsSavingLocal } = useSavingState((state) =>
+    pick(state, ["isSavingLocal", "setIsSavingLocal"])
+  );
   const dataRef = useRef<StorageData>(data);
-  const { config } = useConfig();
+  const { config, httpHelper } = useConfig();
+  const { incrementalUpdateSerialNumber, setIncrementalUpdateSerialNumber } =
+    useIncrementalUpdateState();
+  const batchSyncReceiver = new BatchSyncReceiver(
+    dataRef,
+    setData,
+    setIncrementalUpdateSerialNumber,
+    setIsSavingLocal
+  );
 
   useEffect(() => {
     dataRef.current = data;
@@ -63,9 +75,9 @@ export const useStorage = <T extends keyof StorageData>({
       throw new Error("this method is only supported when useKey is passed");
     }
 
-    const operationLog = getOperationLog();
+    sendBatchSyncUpdate(getOperationAction());
 
-    setIsSaving(true);
+    setIsSavingLocal(true);
     const finalData = {
       ...dataRef.current,
       [useKey as keyof StorageData]: new Map(
@@ -73,10 +85,10 @@ export const useStorage = <T extends keyof StorageData>({
       ).set(id, value),
     };
 
-    setData(finalData).then(() => setIsSaving(false));
+    setData(finalData).then(() => setIsSavingLocal(false));
     dataRef.current = finalData;
 
-    function getOperationLog(): OperationLog {
+    function getOperationAction(): OperationLogAction {
       const operationLogActionData: Record<string, unknown> = {};
 
       const oldData = dataRef.current[useKey as keyof StorageData].get(id) as
@@ -84,17 +96,10 @@ export const useStorage = <T extends keyof StorageData>({
         | undefined;
       if (!oldData) {
         return {
-          id: nanoid(),
-          clientId: "",
-          createdAt: getTimestamp(),
-          actions: [
-            {
-              type: "create",
-              entity: useKey!,
-              entityId: id,
-              data: value,
-            },
-          ],
+          type: "create",
+          entity: useKey!,
+          entityId: id,
+          data: value,
         };
       }
 
@@ -115,17 +120,10 @@ export const useStorage = <T extends keyof StorageData>({
       }
 
       return {
-        id: nanoid(),
-        clientId: "",
-        createdAt: getTimestamp(),
-        actions: [
-          {
-            type: "update",
-            entity: useKey!,
-            entityId: id,
-            data: operationLogActionData,
-          },
-        ],
+        type: "update",
+        entity: useKey!,
+        entityId: id,
+        data: operationLogActionData,
       };
     }
   };
@@ -144,23 +142,16 @@ export const useStorage = <T extends keyof StorageData>({
       throw new Error("this method is only supported when useKey is passed");
     }
 
-    const operationLog: OperationLog = {
-      id: nanoid(),
-      clientId: "",
-      createdAt: getTimestamp(),
-      actions: [
-        {
-          type: isAddingRecord(useKey, id) ? "create" : "update",
-          entity: useKey,
-          entityId: id,
-          data: {
-            [field]: value,
-          },
-        },
-      ],
-    };
+    sendBatchSyncUpdate({
+      type: isAddingRecord(useKey, id) ? "create" : "update",
+      entity: useKey,
+      entityId: id,
+      data: {
+        [field]: value,
+      },
+    });
 
-    setIsSaving(true);
+    setIsSavingLocal(true);
     const finalData = {
       ...dataRef.current,
       [useKey as keyof StorageData]: new Map(
@@ -170,7 +161,7 @@ export const useStorage = <T extends keyof StorageData>({
         [field]: value,
       }),
     };
-    setData(finalData).then(() => setIsSaving(false));
+    setData(finalData).then(() => setIsSavingLocal(false));
     dataRef.current = finalData;
   };
 
@@ -190,10 +181,20 @@ export const useStorage = <T extends keyof StorageData>({
     updateField,
     updateRecord,
     createRecord,
-    isSaving,
+    isSaving: isSavingLocal,
     selectHelper: new SelectHelper(data, config),
     updateHelper: new UpdateHelper(data, config, useKey, updateField),
   };
+
+  function sendBatchSyncUpdate(operationAction: OperationLogAction) {
+    batchSyncSender.setClientId(config.clientId);
+    batchSyncSender.setBathSyncReceiver(batchSyncReceiver);
+    batchSyncSender.setHttpHelper(httpHelper);
+    batchSyncSender.setIncrementalUpdateSerialNumber(
+      incrementalUpdateSerialNumber + 1
+    );
+    batchSyncSender.addBatchedAction(operationAction);
+  }
 
   function isAddingRecord(entity: keyof StorageData, entityId: ID): boolean {
     return !dataRef.current[entity].has(entityId);

@@ -106,6 +106,12 @@ export const Config = ({ renderButton }: Props) => {
           >
             <Input />
           </FormItem>
+          <FormItem label="clientId" field={config.clientId}>
+            <span>{config.clientId}</span>
+          </FormItem>
+          <FormItem label="clientSecret" field={config.clientSecret}>
+            <span>{config.clientSecret}</span>
+          </FormItem>
         </Form>
       </Drawer>
     </>

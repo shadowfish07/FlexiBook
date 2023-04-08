@@ -16,7 +16,8 @@ export default class {
 
   private sendRequest<T>(
     url: string,
-    httpMethod: "GET" | "POST"
+    httpMethod: "GET" | "POST",
+    data?: unknown
   ): Promise<T | null> {
     return new Promise<T | null>(async (resolve, reject) => {
       if (!this.validUrl) {
@@ -26,10 +27,11 @@ export default class {
       try {
         const result = await fetch(encodeURI(url), {
           method: httpMethod,
+          body: JSON.stringify(data),
         });
         const json = (await result.json()) as APIResult<T>;
         if (json.status === "error") {
-          reject(new Error(json.message));
+          reject(json.message);
           return;
         }
         resolve(json.data);
@@ -46,6 +48,16 @@ export default class {
     return this.sendRequest<WebsiteMetaResult>(
       `${this.validUrl}/website/meta?url=${url}`,
       "GET"
+    );
+  }
+
+  public async syncLocalUpdate(
+    data: OperationLog
+  ): Promise<OperationLog[] | null> {
+    return this.sendRequest<OperationLog[]>(
+      `${this.validUrl}/sync/incremental`,
+      "POST",
+      data
     );
   }
 
