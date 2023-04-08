@@ -69,6 +69,12 @@ func (s *Storage) Load(fileName string) ([]byte, error) {
 	return io.ReadAll(file)
 }
 
+func (s *Storage) IsExist(fileName string) (bool, error) {
+	filePath := s.MountDir + "/" + fileName
+
+	return afero.Exists(s.Fs, filePath)
+}
+
 func (s *Storage) Delete(fileName string) error {
 	filePath := s.MountDir + "/" + fileName
 

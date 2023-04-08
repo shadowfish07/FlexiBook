@@ -19,7 +19,7 @@ func NewBlobService(blobRepository *repositories.BlobRepository) *BlobService {
 }
 
 func (bs *BlobService) newBlob(blob models.Blob) (*models.Blob, error) {
-	if existingBlob, _ := bs.GetBlob(models.ID(blob.ID)); existingBlob != nil {
+	if ok, _ := bs.IsExist(models.ID(blob.ID)); ok {
 		return nil, errors.New("Blob ID already exists")
 	}
 
@@ -41,6 +41,10 @@ func (bs *BlobService) CreateBlob(blobParams models.Blob) (*models.Blob, error) 
 	err = bs.blobRepository.Save(blob)
 
 	return blob, err
+}
+
+func (bs *BlobService) IsExist(id models.ID) (bool, error) {
+	return bs.blobRepository.IsExist(id)
 }
 
 func (bs *BlobService) GetBlob(id models.ID) (*models.Blob, error) {

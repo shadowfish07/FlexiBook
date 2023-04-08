@@ -18,6 +18,12 @@ func (b *Blob) Save(blob *models.Blob) error {
 	return b.storage.Save(fileName, []byte(blob.Content))
 }
 
+func (b *Blob) IsExist(name string) (bool, error) {
+	fileName := "blobs/" + name
+
+	return b.storage.IsExist(fileName)
+}
+
 func (b *Blob) Load(name string) (*models.Blob, error) {
 	fileName := "blobs/" + name
 

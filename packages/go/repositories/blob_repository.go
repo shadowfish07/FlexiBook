@@ -19,6 +19,10 @@ func (br *BlobRepository) Get(id models.ID) (*models.Blob, error) {
 	return br.blobStorage.Load(string(id))
 }
 
+func (br *BlobRepository) IsExist(id models.ID) (bool, error) {
+	return br.blobStorage.IsExist(string(id))
+}
+
 func (br *BlobRepository) Save(blob *models.Blob) error {
 	return br.blobStorage.Save(blob)
 }
