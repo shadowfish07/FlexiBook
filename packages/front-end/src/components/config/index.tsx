@@ -1,17 +1,6 @@
-import {
-  Button,
-  Collapse,
-  Drawer,
-  Form,
-  Input,
-  Message,
-  Modal,
-  ResizeBox,
-  Switch,
-} from "@arco-design/web-react";
+import { Collapse, Drawer, Form } from "@arco-design/web-react";
 import FormItem from "@arco-design/web-react/es/Form/form-item";
-import parseUrl from "parse-url";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useConfig } from "../../hooks";
 import { Sync } from "./Sync";
 import { BackendURL } from "./BackendURL";
@@ -29,9 +18,8 @@ const GlobalClass = createGlobalStyle`
 
 export const Config = ({ renderButton }: Props) => {
   const [visible, setVisible] = useState(false);
-  const { config, updateConfig } = useConfig();
+  const { config } = useConfig();
   const formRef = useRef<any>();
-  const [isChanged, setIsChanged] = useState(false);
 
   const openDrawer = () => {
     setVisible(true);
@@ -39,20 +27,6 @@ export const Config = ({ renderButton }: Props) => {
 
   const hideDrawer = () => {
     setVisible(false);
-    setIsChanged(false);
-  };
-
-  const handleSubmit = (values: Config) => {
-    updateConfig({
-      ...config,
-      ...values,
-    });
-    hideDrawer();
-    Message.success("设置已保存");
-  };
-
-  const handleChange = () => {
-    setIsChanged(true);
   };
 
   return (
@@ -64,13 +38,14 @@ export const Config = ({ renderButton }: Props) => {
         title={<span>设置 </span>}
         visible={visible}
         autoFocus={false}
+        onOk={hideDrawer}
+        onCancel={hideDrawer}
         unmountOnExit
         footer={null}
       >
         <Form
           ref={formRef}
           initialValues={config}
-          onChange={handleChange}
           scrollToFirstError
           labelCol={{
             span: 3,
