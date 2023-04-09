@@ -17,6 +17,7 @@ export function WebApp() {
         style={{
           backgroundColor: "rgba(35, 35, 36, 0.9)",
           backdropFilter: "blur(5px)",
+          minWidth: 200,
         }}
       >
         <SideMenu />
