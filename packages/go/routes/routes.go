@@ -6,7 +6,7 @@ import (
 	"github.com/shadowfish07/FlexiBook/middleware"
 )
 
-func RegisterRoutes(websiteController *controllers.WebsiteController, systemController *controllers.SystemController, bookmarkController *controllers.BookmarkController, syncController *controllers.SyncController) *gin.Engine {
+func RegisterRoutes(websiteController *controllers.WebsiteController, systemController *controllers.SystemController, bookmarkController *controllers.BookmarkController, syncController *controllers.SyncController, configController *controllers.ConfigController) *gin.Engine {
 	router := gin.Default()
 	router.Use(middleware.RequestLoggerMiddleware())
 	router.Use(middleware.CORSMiddleware())
@@ -20,6 +20,9 @@ func RegisterRoutes(websiteController *controllers.WebsiteController, systemCont
 
 	router.GET("/sync/incremental/:clientIncrementalId", syncController.GetIncrementalUpdate)
 	router.POST("/sync/incremental", syncController.PostIncrementalUpdate)
+	router.POST("/sync/init", syncController.Init)
+
+	router.POST("/config", configController.Update)
 
 	return router
 }

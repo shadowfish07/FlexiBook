@@ -35,7 +35,7 @@ func (o *Operation) load() (models.OperationList, error) {
 	err = json.Unmarshal(fileData, &result)
 	if err != nil {
 		log.Println(err)
-		return nil, errors.New("database file is broken")
+		return nil, errors.New("operation file is broken")
 	}
 
 	// sort by id

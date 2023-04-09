@@ -1,6 +1,8 @@
 package services
 
 import (
+	"errors"
+
 	"github.com/shadowfish07/FlexiBook/models"
 	"github.com/shadowfish07/FlexiBook/repositories"
 	"github.com/shadowfish07/FlexiBook/utils"
@@ -10,14 +12,24 @@ type SyncService struct {
 	operationRepository *repositories.OperationRepository
 	bookmarkService     *BookmarkService
 	entity              *Entity
+	syncRepository      *repositories.SyncRepository
+	configRepository    *repositories.ConfigRepository
+	configService       *ConfigService
 }
 
 func NewSyncService(operationRepository *repositories.OperationRepository,
-	bookmarkService *BookmarkService, entity *Entity) *SyncService {
+	bookmarkService *BookmarkService,
+	entity *Entity,
+	syncRepository *repositories.SyncRepository,
+	configRepository *repositories.ConfigRepository,
+	configService *ConfigService) *SyncService {
 	return &SyncService{
 		operationRepository: operationRepository,
 		bookmarkService:     bookmarkService,
 		entity:              entity,
+		syncRepository:      syncRepository,
+		configRepository:    configRepository,
+		configService:       configService,
 	}
 }
 
@@ -54,6 +66,28 @@ func (ss *SyncService) AddIncrementalUpdate(operation models.Operation) (models.
 
 	ss.operationRepository.Add(operation)
 	return finalOperation, nil
+}
+
+func (ss *SyncService) Init(config *models.Config) error {
+	clientInfo, err := ss.configRepository.GetClientInfo()
+	if err != nil {
+		return err
+	}
+	if clientInfo != nil && clientInfo.ClientId != "" && clientInfo.ClientSecret != "" {
+		return errors.New("you have already init. if you want to re-init, please delete all data files")
+	}
+
+	err = ss.syncRepository.Init(&models.Database{
+		Tags:       make(models.Tags),
+		Bookmarks:  make(models.Bookmarks),
+		Categories: make(models.Categories),
+		Config:     *config,
+	})
+	if err != nil {
+		return err
+	}
+
+	return ss.configService.SetEnableSync(true)
 }
 
 func (ss *SyncService) processOperation(operation models.Operation) error {

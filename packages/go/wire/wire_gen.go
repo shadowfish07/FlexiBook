@@ -38,19 +38,23 @@ func InitializeApp(mountDir string, useMemoryFs bool) (*gin.Engine, error) {
 	tagService := services.NewTagService(tagRepository)
 	tagEntity := services.NewTagEntity(tagService)
 	entity := services.NewEntity(bookmarkEntity, categoryEntity, tagEntity)
-	syncService := services.NewSyncService(operationRepository, bookmarkService, entity)
+	syncRepository := repositories.NewSyncRepository(database)
+	configRepository := repositories.NewConfigRepository(database)
+	configService := services.NewConfigService(configRepository)
+	syncService := services.NewSyncService(operationRepository, bookmarkService, entity, syncRepository, configRepository, configService)
 	syncController := controllers.NewSyncController(syncService)
-	engine := routes.RegisterRoutes(websiteController, systemController, bookmarkController, syncController)
+	configController := controllers.NewConfigController(configService)
+	engine := routes.RegisterRoutes(websiteController, systemController, bookmarkController, syncController, configController)
 	return engine, nil
 }
 
 // wire.go:
 
-var controllerSet = wire.NewSet(controllers.NewBookmarkController, controllers.NewSyncController, controllers.NewSystemController, controllers.NewWebsiteController)
+var controllerSet = wire.NewSet(controllers.NewBookmarkController, controllers.NewSyncController, controllers.NewSystemController, controllers.NewWebsiteController, controllers.NewConfigController)
 
-var repositorySet = wire.NewSet(repositories.NewBookmarkRepository, repositories.NewCategoryRepository, repositories.NewOperationRepository, repositories.NewTagRepository)
+var repositorySet = wire.NewSet(repositories.NewBookmarkRepository, repositories.NewCategoryRepository, repositories.NewOperationRepository, repositories.NewTagRepository, repositories.NewSyncRepository, repositories.NewConfigRepository)
 
-var serviceSet = wire.NewSet(services.NewEntity, services.NewBookmarkEntity, services.NewCategoryEntity, services.NewTagEntity, services.NewBookmarkService, services.NewCategoryService, services.NewTagService, services.NewWebsiteService, services.NewSyncService)
+var serviceSet = wire.NewSet(services.NewEntity, services.NewBookmarkEntity, services.NewCategoryEntity, services.NewTagEntity, services.NewBookmarkService, services.NewCategoryService, services.NewTagService, services.NewWebsiteService, services.NewSyncService, services.NewConfigService)
 
 var storageSet = wire.NewSet(storage.NewDatabase, storage.NewOperation, NewStorageWithAfero)
 

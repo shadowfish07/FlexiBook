@@ -77,7 +77,7 @@ export const useStorage = <T extends keyof StorageData>({
       throw new Error("this method is only supported when useKey is passed");
     }
 
-    config.backendURL && sendBatchSyncUpdate(getOperationAction());
+    config.enableSync && sendBatchSyncUpdate(getOperationAction());
 
     setIsSavingLocal(true);
     const finalData = {
@@ -144,7 +144,7 @@ export const useStorage = <T extends keyof StorageData>({
       throw new Error("this method is only supported when useKey is passed");
     }
 
-    config.backendURL &&
+    config.enableSync &&
       sendBatchSyncUpdate({
         type: isAddingRecord(useKey, id) ? "create" : "update",
         entity: useKey,

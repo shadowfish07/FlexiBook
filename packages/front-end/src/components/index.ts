@@ -7,5 +7,5 @@ export { Bookmark } from "./Bookmark";
 export { CategoryInfo } from "./CategoryInfo";
 export { AddBookmarkPopover } from "./AddBookmarkPopover";
 export { AddBookmark } from "./AddBookmark";
-export { Config } from "./Config";
+export { Config } from "./config";
 export { BookmarkDescriptionItem } from "./BookmarkDescriptionItem";

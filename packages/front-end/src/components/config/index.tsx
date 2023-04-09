@@ -1,20 +1,31 @@
 import {
   Button,
+  Collapse,
   Drawer,
   Form,
   Input,
   Message,
   Modal,
   ResizeBox,
+  Switch,
 } from "@arco-design/web-react";
 import FormItem from "@arco-design/web-react/es/Form/form-item";
 import parseUrl from "parse-url";
 import { useEffect, useRef, useState } from "react";
-import { useConfig } from "../hooks";
+import { useConfig } from "../../hooks";
+import { Sync } from "./Sync";
+import { BackendURL } from "./BackendURL";
+import { createGlobalStyle } from "styled-components";
 
 type Props = {
   renderButton: (openDrawer: () => void) => JSX.Element;
 };
+
+const GlobalClass = createGlobalStyle`
+  .config-collapse .arco-row:last-child {
+    margin-bottom: 0;
+  }
+`;
 
 export const Config = ({ renderButton }: Props) => {
   const [visible, setVisible] = useState(false);
@@ -44,40 +55,21 @@ export const Config = ({ renderButton }: Props) => {
     setIsChanged(true);
   };
 
-  const handleDrawerOK = () => {
-    formRef.current.submit();
-  };
-
-  const handleDrawerCancel = () => {
-    if (isChanged) {
-      Modal.confirm({
-        title: "设置已更改，是否保存？",
-        onOk: handleDrawerOK,
-        onCancel: hideDrawer,
-        simple: true,
-      });
-      return;
-    }
-    hideDrawer();
-  };
-
   return (
     <>
+      <GlobalClass />
       {renderButton(openDrawer)}
       <Drawer
         width={"60%"}
         title={<span>设置 </span>}
         visible={visible}
-        onOk={handleDrawerOK}
-        onCancel={handleDrawerCancel}
         autoFocus={false}
-        okText="保存"
         unmountOnExit
+        footer={null}
       >
         <Form
           ref={formRef}
           initialValues={config}
-          onSubmit={handleSubmit}
           onChange={handleChange}
           scrollToFirstError
           labelCol={{
@@ -88,30 +80,18 @@ export const Config = ({ renderButton }: Props) => {
           }}
           labelAlign="left"
         >
-          <FormItem
-            label="后端地址"
-            field="backendURL"
-            rules={[
-              {
-                validator(value, callback) {
-                  try {
-                    parseUrl(value);
-                    return callback();
-                  } catch (error) {
-                    return callback("网址不合法");
-                  }
-                },
-              },
-            ]}
-          >
-            <Input />
-          </FormItem>
-          <FormItem label="clientId" field={config.clientId}>
-            <span>{config.clientId}</span>
-          </FormItem>
-          <FormItem label="clientSecret" field={config.clientSecret}>
-            <span>{config.clientSecret}</span>
-          </FormItem>
+          <BackendURL />
+          <Sync />
+          <Collapse className={"config-collapse"}>
+            <Collapse.Item header="开发者信息" name="1">
+              <FormItem label="clientId" field={config.clientId}>
+                <span>{config.clientId}</span>
+              </FormItem>
+              <FormItem label="clientSecret" field={config.clientSecret}>
+                <span>{config.clientSecret}</span>
+              </FormItem>
+            </Collapse.Item>
+          </Collapse>
         </Form>
       </Drawer>
     </>

@@ -2,6 +2,7 @@ package storage
 
 import (
 	"errors"
+	"log"
 
 	"github.com/goccy/go-json"
 	"github.com/shadowfish07/FlexiBook/models"
@@ -42,13 +43,14 @@ func (dr *Database) load() (*models.Database, error) {
 		return nil, nil
 	}
 
-	var result *models.Database
-	err = json.Unmarshal(fileData, result)
+	var result models.Database
+	err = json.Unmarshal(fileData, &result)
 	if err != nil {
+		log.Default().Println(err)
 		return nil, errors.New("database file is broken")
 	}
 
-	return result, nil
+	return &result, nil
 }
 
 func (dr *Database) Get() (*models.Database, error) {

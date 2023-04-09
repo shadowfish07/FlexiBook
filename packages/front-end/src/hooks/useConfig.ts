@@ -6,7 +6,10 @@ import { pick } from "lodash";
 
 export type UseConfigReturnType = {
   config: Config;
-  updateConfigByKey: <T extends keyof Config>(key: T, value: Config[T]) => void;
+  updateConfigByKey: <T extends keyof Config>(
+    key: T,
+    value: Config[T]
+  ) => Config;
   updateConfig: (newConfig: Config) => void;
   httpHelper: HttpHelper;
 };
@@ -32,6 +35,8 @@ export const useConfig = (): UseConfigReturnType => {
     };
 
     setConfig(newConfig).then(() => setIsSavingLocal(false));
+
+    return newConfig;
   };
 
   const updateConfig = (newConfig: Config) => {

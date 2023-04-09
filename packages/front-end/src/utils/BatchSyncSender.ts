@@ -8,6 +8,7 @@ import { Message } from "@arco-design/web-react";
 class BatchSyncSender {
   private httpHelper: HttpHelper | undefined;
   private incrementalUpdateSerialNumber = 0;
+  // TODO 持久化
   private batchedActionList: OperationLogAction[] = [];
   private bathSyncReceiver: BatchSyncReceiver | undefined;
   private clientId: string | undefined;

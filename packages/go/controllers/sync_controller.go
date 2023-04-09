@@ -23,6 +23,23 @@ func NewSyncController(syncService *services.SyncService) *SyncController {
 	}
 }
 
+func (sc *SyncController) Init(ctx *gin.Context) {
+	var req models.Config
+
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		response.ErrorResponse(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	err := sc.syncService.Init(&req)
+	if err != nil {
+		response.ErrorResponse(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	response.JSONResponse(ctx, nil)
+}
+
 func (sc *SyncController) GetIncrementalUpdate(ctx *gin.Context) {
 	clientIncrementalId := ctx.Param("clientIncrementalId")
 

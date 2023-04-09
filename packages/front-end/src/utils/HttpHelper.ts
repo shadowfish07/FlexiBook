@@ -54,6 +54,7 @@ export default class {
   public async syncLocalUpdate(
     data: OperationLog
   ): Promise<OperationLog[] | null> {
+    if (this.config.enableSync === false) return Promise.resolve([]);
     return this.sendRequest<OperationLog[]>(
       `${this.validUrl}/sync/incremental`,
       "POST",
@@ -64,10 +65,34 @@ export default class {
   public async getRemoteUpdate(
     incrementalUpdateSerialNumber: number
   ): Promise<OperationLog[] | null> {
+    if (this.config.enableSync === false) return Promise.resolve([]);
     return this.sendRequest<OperationLog[]>(
       `${this.validUrl}/sync/incremental/${incrementalUpdateSerialNumber}`,
       "GET"
     );
+  }
+
+  public async initSync(config: Config): Promise<null> {
+    return this.sendRequest<null>(`${this.validUrl}/sync/init`, "POST", config);
+  }
+
+  // 更改后端地址比较麻烦，这里的思路是给新老地址都尝试发一次更新请求
+  public async updateConfig(config: Config): Promise<null[]> {
+    const promises: Promise<null>[] = [];
+    if (config.backendURL !== this.config.backendURL && config.backendURL) {
+      promises.push(
+        this.sendRequest<null>(
+          `${this.getValidUrl(config.backendURL)}/config`,
+          "POST",
+          config
+        )
+      );
+    }
+    promises.push(
+      this.sendRequest<null>(`${this.validUrl}/config`, "POST", config)
+    );
+
+    return Promise.all(promises);
   }
 
   public async getIconOfWebsite(url: string) {

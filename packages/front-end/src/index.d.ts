@@ -73,6 +73,7 @@ declare type Config = {
   };
   clientId: string;
   clientSecret: string;
+  enableSync: boolean;
   backendURL?: string;
 };
 

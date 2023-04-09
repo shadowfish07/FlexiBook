@@ -18,6 +18,7 @@ const INIT_CONFIG: Config = {
   },
   clientId: nanoid(),
   clientSecret: nanoid(),
+  enableSync: false,
 };
 
 const loadLocalConfig = async () => {
