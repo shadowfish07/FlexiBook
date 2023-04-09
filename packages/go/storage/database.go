@@ -9,19 +9,12 @@ import (
 
 type Database struct {
 	storage          *Storage
-	cache            *models.Database
 	DatabaseFileName string
-	hasInit          bool
 }
 
 func NewDatabase(storage *Storage) *Database {
-	return &Database{cache: &models.Database{
-		Tags:       make(models.Tags),
-		Categories: make(models.Categories),
-		Bookmarks:  make(models.Bookmarks),
-	},
+	return &Database{
 		DatabaseFileName: "database.json",
-		hasInit:          false,
 		storage:          storage,
 	}
 }
@@ -36,36 +29,28 @@ func (dr *Database) Save(value *models.Database) error {
 		return err
 	}
 
-	dr.cache = value
 	return dr.storage.Save(dr.DatabaseFileName, jsonData)
 }
 
-func (dr *Database) load() error {
+func (dr *Database) load() (*models.Database, error) {
 	fileData, err := dr.storage.Load(dr.DatabaseFileName)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	dr.hasInit = true
 
 	if fileData == nil || len(fileData) == 0 {
-		return nil
+		return nil, nil
 	}
 
-	err = json.Unmarshal(fileData, dr.cache)
+	var result *models.Database
+	err = json.Unmarshal(fileData, result)
 	if err != nil {
-		return errors.New("database file is broken")
+		return nil, errors.New("database file is broken")
 	}
 
-	return nil
+	return result, nil
 }
 
 func (dr *Database) Get() (*models.Database, error) {
-	if !dr.hasInit {
-		err := dr.load()
-		if err != nil {
-			return nil, err
-		}
-	}
-	return dr.cache, nil
+	return dr.load()
 }

@@ -10,45 +10,40 @@ import (
 )
 
 type Operation struct {
-	hasInit           bool
 	storage           *Storage
 	operationFileName string
-	cache             models.OperationList
 }
 
 func NewOperation(storage *Storage) *Operation {
 	return &Operation{
 		operationFileName: "operation.json",
-		hasInit:           false,
 		storage:           storage,
-		cache:             make(models.OperationList, 0),
 	}
 }
 
-func (o *Operation) load() error {
+func (o *Operation) load() (models.OperationList, error) {
 	fileData, err := o.storage.Load(o.operationFileName)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	o.hasInit = true
 
 	if fileData == nil || len(fileData) == 0 {
-		return nil
+		return nil, nil
 	}
 
-	err = json.Unmarshal(fileData, &o.cache)
+	var result models.OperationList
+	err = json.Unmarshal(fileData, &result)
 	if err != nil {
 		log.Println(err)
-		return errors.New("database file is broken")
+		return nil, errors.New("database file is broken")
 	}
 
 	// sort by id
-	sort.Slice(o.cache, func(i, j int) bool {
-		return o.cache[i].Id < o.cache[j].Id
+	sort.Slice(result, func(i, j int) bool {
+		return result[i].Id < result[j].Id
 	})
 
-	return nil
+	return result, nil
 }
 
 func (o *Operation) Save(value models.OperationList) error {
@@ -57,16 +52,9 @@ func (o *Operation) Save(value models.OperationList) error {
 		return err
 	}
 
-	o.cache = value
 	return o.storage.Save(o.operationFileName, jsonData)
 }
 
 func (o *Operation) Get() (models.OperationList, error) {
-	if !o.hasInit {
-		err := o.load()
-		if err != nil {
-			return nil, err
-		}
-	}
-	return o.cache, nil
+	return o.load()
 }
