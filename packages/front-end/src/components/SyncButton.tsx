@@ -20,30 +20,32 @@ export const SyncButton = () => {
   const handleSync = async (showMessage: boolean = true) => {
     setIsSyncing(true);
 
-    if (!batchSyncSender.isBatchedActionListEmpty) {
-      setupBatchSyncSender();
-      const syncResult = await batchSyncSender.syncBatchedAction();
-      setIsSyncing(false);
-      if (syncResult.downloadCount + syncResult.uploadCount === 0) {
-        showMessage && Message.info("已是最新");
-      } else {
-        showMessage && Message.success("同步成功");
+    try {
+      if (!batchSyncSender.isBatchedActionListEmpty) {
+        setupBatchSyncSender();
+        const syncResult = await batchSyncSender.syncBatchedAction();
+        if (syncResult.downloadCount + syncResult.uploadCount === 0) {
+          showMessage && Message.info("已是最新");
+        } else {
+          showMessage && Message.success("同步成功");
+        }
+        return;
       }
-      return;
+
+      const result = await httpHelper.getRemoteUpdate(
+        incrementalUpdateSerialNumber
+      );
+
+      if (result && result.length) {
+        showMessage && Message.success(`同步成功`);
+        batchSyncReceiver.syncLocalData(result);
+      } else {
+        showMessage && Message.info("已是最新");
+      }
+    } catch (error) {
+    } finally {
+      setIsSyncing(false);
     }
-
-    const result = await httpHelper.getRemoteUpdate(
-      incrementalUpdateSerialNumber
-    );
-
-    if (result && result.length) {
-      showMessage && Message.success(`同步成功`);
-      batchSyncReceiver.syncLocalData(result);
-    } else {
-      showMessage && Message.info("已是最新");
-    }
-
-    setIsSyncing(false);
   };
 
   useEffect(() => {
