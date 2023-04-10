@@ -29,6 +29,7 @@ var repositorySet = wire.NewSet(
 	repositories.NewTagRepository,
 	repositories.NewSyncRepository,
 	repositories.NewConfigRepository,
+	repositories.NewOauthRepository,
 )
 
 var serviceSet = wire.NewSet(
@@ -42,11 +43,13 @@ var serviceSet = wire.NewSet(
 	services.NewWebsiteService,
 	services.NewSyncService,
 	services.NewConfigService,
+	services.NewAuthService,
 )
 
 var storageSet = wire.NewSet(
 	storage.NewDatabase,
 	storage.NewOperation,
+	storage.NewOauth,
 	NewStorageWithAfero,
 )
 

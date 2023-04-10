@@ -44,7 +44,10 @@ func InitializeApp(mountDir string, useMemoryFs bool) (*gin.Engine, error) {
 	syncService := services.NewSyncService(operationRepository, bookmarkService, entity, syncRepository, configRepository, configService)
 	syncController := controllers.NewSyncController(syncService)
 	configController := controllers.NewConfigController(configService)
-	engine := routes.RegisterRoutes(websiteController, systemController, bookmarkController, syncController, configController)
+	oauth := storage.NewOauth(storageStorage)
+	oauthRepository := repositories.NewOauthRepository(oauth)
+	authService := services.NewAuthService(configRepository, oauthRepository)
+	engine := routes.RegisterRoutes(websiteController, systemController, bookmarkController, syncController, configController, authService)
 	return engine, nil
 }
 
@@ -52,11 +55,11 @@ func InitializeApp(mountDir string, useMemoryFs bool) (*gin.Engine, error) {
 
 var controllerSet = wire.NewSet(controllers.NewBookmarkController, controllers.NewSyncController, controllers.NewSystemController, controllers.NewWebsiteController, controllers.NewConfigController)
 
-var repositorySet = wire.NewSet(repositories.NewBookmarkRepository, repositories.NewCategoryRepository, repositories.NewOperationRepository, repositories.NewTagRepository, repositories.NewSyncRepository, repositories.NewConfigRepository)
+var repositorySet = wire.NewSet(repositories.NewBookmarkRepository, repositories.NewCategoryRepository, repositories.NewOperationRepository, repositories.NewTagRepository, repositories.NewSyncRepository, repositories.NewConfigRepository, repositories.NewOauthRepository)
 
-var serviceSet = wire.NewSet(services.NewEntity, services.NewBookmarkEntity, services.NewCategoryEntity, services.NewTagEntity, services.NewBookmarkService, services.NewCategoryService, services.NewTagService, services.NewWebsiteService, services.NewSyncService, services.NewConfigService)
+var serviceSet = wire.NewSet(services.NewEntity, services.NewBookmarkEntity, services.NewCategoryEntity, services.NewTagEntity, services.NewBookmarkService, services.NewCategoryService, services.NewTagService, services.NewWebsiteService, services.NewSyncService, services.NewConfigService, services.NewAuthService)
 
-var storageSet = wire.NewSet(storage.NewDatabase, storage.NewOperation, NewStorageWithAfero)
+var storageSet = wire.NewSet(storage.NewDatabase, storage.NewOperation, storage.NewOauth, NewStorageWithAfero)
 
 func NewStorageWithAfero(mountDir string, useMemoryFs bool) *storage.Storage {
 	var fs afero.Fs

@@ -4,12 +4,19 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/shadowfish07/FlexiBook/controllers"
 	"github.com/shadowfish07/FlexiBook/middleware"
+	"github.com/shadowfish07/FlexiBook/services"
 )
 
-func RegisterRoutes(websiteController *controllers.WebsiteController, systemController *controllers.SystemController, bookmarkController *controllers.BookmarkController, syncController *controllers.SyncController, configController *controllers.ConfigController) *gin.Engine {
+func RegisterRoutes(websiteController *controllers.WebsiteController,
+	systemController *controllers.SystemController,
+	bookmarkController *controllers.BookmarkController,
+	syncController *controllers.SyncController,
+	configController *controllers.ConfigController,
+	authService *services.AuthService) *gin.Engine {
 	router := gin.Default()
 	router.Use(middleware.RequestLoggerMiddleware())
 	router.Use(middleware.CORSMiddleware())
+	router.Use(middleware.AuthenticationMiddleware(authService))
 
 	router.GET("/website/meta", websiteController.GetMeta)
 	router.GET("/website/icons", websiteController.GetIcon)

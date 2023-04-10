@@ -1,3 +1,6 @@
+import { getTimestamp } from "./utils";
+import md5 from "md5";
+
 export default class {
   private validUrl: string | null;
   constructor(private config: Config) {
@@ -14,6 +17,17 @@ export default class {
     return url;
   }
 
+  private getAuthHeaders(): Record<string, string> {
+    const timestamp = getTimestamp();
+    return {
+      "X-Client-ID": this.config.clientId,
+      "X-Timestamp": String(timestamp),
+      "X-Signature": md5(
+        this.config.clientId + this.config.clientSecret + timestamp
+      ),
+    };
+  }
+
   private sendRequest<T>(
     url: string,
     httpMethod: "GET" | "POST",
@@ -28,6 +42,7 @@ export default class {
         const result = await fetch(encodeURI(url), {
           method: httpMethod,
           body: JSON.stringify(data),
+          headers: this.getAuthHeaders(),
         });
         const json = (await result.json()) as APIResult<T>;
         if (json.status === "error") {
