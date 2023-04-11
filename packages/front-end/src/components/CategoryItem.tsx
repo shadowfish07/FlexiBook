@@ -10,7 +10,11 @@ import { CaretDown } from "./CaretDown";
 import { InPlaceInput } from "./InPlaceInput";
 
 const StyledCategoryItem = styled.div`
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  width: 100%;
 
   .icon {
     user-select: none;
@@ -127,34 +131,38 @@ export const CategoryItem = ({
   return (
     <>
       <StyledCategoryItem ref={itemRef} data-id={categoryId}>
-        <CaretDown
-          isFolding={isFolding}
-          isParent={isParent}
-          onToggleFold={handleToggleFold}
-        />
-
-        <span className={`icon`} onClick={handleClickEmoji}>
-          {category.icon}
-        </span>
-
-        <InPlaceInput
-          text={category.title}
-          placeholder={isNew ? DEFAULT_NEW_CATEGORY_TITLE : "输入分类名"}
-          isReadOnly={isDefault}
-          defaultStatus={isNew}
-          onSave={handleSaveTitle}
-          textClassName="title"
-        />
-
-        {showAddSubCategoryButton() && (
-          <Button
-            type="text"
-            size="mini"
-            onClick={handleAddSubCategory}
-            className={"add-sub-button"}
-            icon={<IconPlus />}
+        <div className="left">
+          <CaretDown
+            isFolding={isFolding}
+            isParent={isParent}
+            onToggleFold={handleToggleFold}
           />
-        )}
+
+          <span className={`icon`} onClick={handleClickEmoji}>
+            {category.icon}
+          </span>
+
+          <InPlaceInput
+            text={category.title}
+            placeholder={isNew ? DEFAULT_NEW_CATEGORY_TITLE : "输入分类名"}
+            isReadOnly={isDefault}
+            defaultStatus={isNew}
+            onSave={handleSaveTitle}
+            textClassName="title"
+          />
+        </div>
+
+        <div className="right">
+          {showAddSubCategoryButton() && (
+            <Button
+              type="text"
+              size="mini"
+              onClick={handleAddSubCategory}
+              className={"add-sub-button"}
+              icon={<IconPlus />}
+            />
+          )}
+        </div>
       </StyledCategoryItem>
       {showEmojiPicker &&
         ReactDOM.createPortal(

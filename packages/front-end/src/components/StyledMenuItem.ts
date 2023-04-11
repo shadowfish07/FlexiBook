@@ -7,4 +7,8 @@ export const StyledMenuItem = styled.span`
     background-color: rgba(14, 50, 166, 0.1);
     transition: box-shadow 0.1s linear, background 0.1s linear;
   }
+
+  & .arco-menu-inline-header {
+    padding-right: 12px;
+  }
 `;
