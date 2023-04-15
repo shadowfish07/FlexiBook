@@ -34,7 +34,7 @@ export const Config = ({ renderButton }: Props) => {
       <GlobalClass />
       {renderButton(openDrawer)}
       <Drawer
-        width={"60%"}
+        width={"50%"}
         title={<span>设置 </span>}
         visible={visible}
         autoFocus={false}

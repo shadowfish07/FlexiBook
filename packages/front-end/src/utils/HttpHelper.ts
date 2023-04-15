@@ -1,3 +1,4 @@
+import { nanoid } from "nanoid";
 import { getTimestamp } from "./utils";
 import md5 from "md5";
 
@@ -32,10 +33,10 @@ export default class {
     url: string,
     httpMethod: "GET" | "POST",
     data?: unknown
-  ): Promise<T | null> {
-    return new Promise<T | null>(async (resolve, reject) => {
+  ): Promise<T> {
+    return new Promise<T>(async (resolve, reject) => {
       if (!this.validUrl) {
-        resolve(null);
+        reject(undefined);
         return;
       }
       try {
@@ -54,6 +55,39 @@ export default class {
         console.log(error);
         reject("接口异常");
       }
+    });
+  }
+
+  public async getOauth(): Promise<ServerOauth> {
+    return this.sendRequest<ServerOauth>(
+      `${this.validUrl}/auth/oauth-data`,
+      "GET"
+    );
+  }
+
+  public async addShareInvitation(invitation: {
+    password?: string;
+    usesLimit?: number;
+    usesUntil?: number;
+    entity: EntitySupportedByBackend;
+    entityId: string;
+    allowEdit: boolean;
+  }): Promise<null> {
+    const id = nanoid();
+    return this.sendRequest<null>(`${this.validUrl}/invitation`, "POST", {
+      password: invitation.password,
+      usesLimit: invitation.usesLimit,
+      usesUntil: invitation.usesUntil,
+      id,
+      createdAt: getTimestamp(),
+      defaultPermissions: [
+        {
+          entity: invitation.entity,
+          entityId: invitation.entityId,
+          allowEdit: invitation.allowEdit,
+          invitationId: id,
+        },
+      ],
     });
   }
 

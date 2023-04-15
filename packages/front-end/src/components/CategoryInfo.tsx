@@ -3,10 +3,10 @@ import { useConfig } from "../hooks";
 
 const StyledCategoryInfo = styled.span`
   color: var(--color-text-2);
+  user-select: none;
 
   span:nth-child(1) {
     margin-right: 5px;
-    user-select: none;
   }
 `;
 

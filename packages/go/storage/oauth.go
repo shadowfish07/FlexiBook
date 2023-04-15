@@ -27,7 +27,11 @@ func (o *Oauth) load() (*models.Oauth, error) {
 	}
 
 	if fileData == nil || len(fileData) == 0 {
-		return nil, nil
+		return &models.Oauth{
+			OauthItems:               []models.OauthItem{},
+			Invitations:              []models.Invitation{},
+			InvitationUsageHistories: []models.InvitationUsageHistory{},
+		}, nil
 	}
 
 	var result models.Oauth

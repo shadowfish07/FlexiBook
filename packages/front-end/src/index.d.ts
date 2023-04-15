@@ -95,14 +95,61 @@ declare type OperationLog = {
   actions: OperationLogAction[];
 };
 
+declare type EntitySupportedByBackend = "tags" | "categories" | "bookmarks";
+
 declare type OperationLogAction = {
   type: "create" | "update" | "delete";
-  entity: keyof StorageData;
+  entity: EntitySupportedByBackend;
   entityId: ID;
   data: Record<string, unknown>;
 };
 
+declare type ServerOauth = {
+  nickname: string;
+  oauthItems: Oauth[];
+  invitations: Invitation[];
+  invitationUsageHistories: InvitationUsageHistory[];
+};
+
+declare type Oauth = {
+  clientId: string;
+  secret: string;
+  nickname?: string;
+  deletedAt?: number;
+  createdAt: number;
+  permissions: Permission[];
+};
+
+declare type Invitation = {
+  id: string;
+  password?: string;
+  deletedAt?: number;
+  createdAt: number;
+  usesLimit?: number;
+  usesUntil?: number;
+  defaultPermissions: Permission[];
+};
+
+declare type Permission = {
+  entity: EntitySupportedByBackend;
+  entityId: string;
+  allowEdit: boolean;
+  invitationId: string;
+};
+
+declare type InvitationUsageHistory = {
+  clientId: string;
+  createdAt: number;
+  invitationId: string;
+};
+
 // API --------------------------------------------
+
+declare type ActivateInvitationRequest = {
+  password?: string;
+  nickname?: string;
+  permissions: Permission[];
+};
 
 declare type APIResult<T> =
   | {

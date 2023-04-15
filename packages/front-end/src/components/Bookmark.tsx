@@ -12,7 +12,7 @@ import styled from "styled-components";
 import { DragSourceMonitor, useDrag } from "react-dnd";
 import { DnDTypes } from "../constants";
 import { AddTagPopover } from "./AddTagPopover";
-import { Tag } from "./Tag";
+import { TagInfo } from "./TagInfo";
 
 const StyledCard = styled(Card)<{ hide?: boolean }>`
   display: ${({ hide }) => (hide ? "none" : "block")};
@@ -95,7 +95,7 @@ export const Bookmark = ({ bookmark }: Props) => {
       return null;
     }
     return bookmark.tags.map((tag) => {
-      return <Tag tag={selectHelper.selectTag(tag)!} />;
+      return <TagInfo tag={selectHelper.selectTag(tag)!} />;
     });
   };
 

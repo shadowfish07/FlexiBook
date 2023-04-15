@@ -15,7 +15,7 @@ import (
 func AuthenticationMiddleware(authService *services.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 允许跳过认证的接口列表
-		ignoreList := []string{"/sync/init"}
+		ignoreList := []string{"/sync/init", "/invitation/activate/"}
 
 		// 如果请求的路径在忽略列表中，则不进行身份认证
 		for _, ignorePath := range ignoreList {
@@ -55,6 +55,16 @@ func AuthenticationMiddleware(authService *services.AuthService) gin.HandlerFunc
 
 		// TODO 过滤只有管理员才能访问的接口
 		c.Set("isMonitor", isMonitor)
+
+		c.Set("clientId", clientID)
+
+		if strings.HasPrefix(c.Request.URL.Path, "/invitation/activate/") {
+			if isMonitor {
+				c.Abort()
+				response.ErrorResponse(c, http.StatusBadRequest, errors.New("不能激活自己的邀请链接"))
+				return
+			}
+		}
 
 		c.Next()
 	}

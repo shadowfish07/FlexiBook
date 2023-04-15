@@ -1,12 +1,13 @@
 import { Button, Input, Popover, Space } from "@arco-design/web-react";
 import Header from "@arco-design/web-react/es/Layout/header";
-import { IconSettings } from "@arco-design/web-react/icon";
+import { IconSettings, IconShareAlt } from "@arco-design/web-react/icon";
 import { memo, useContext, useState } from "react";
 import { AddBookmarkPopover, Config } from ".";
 import { useSavingState } from "../store/useSavingState";
 import { pick } from "lodash";
 import { SyncButton } from "./SyncButton";
 import { useHeaderState } from "../store/useHeaderState";
+import { Share } from "./share";
 
 export default memo(() => {
   const { isSavingLocal } = useSavingState((state) =>
@@ -19,6 +20,8 @@ export default memo(() => {
   const handleSearchChange = (value: string) => {
     setSearchText(value);
   };
+
+  const handleClickShareButton = () => {};
 
   return (
     <Header
@@ -42,6 +45,7 @@ export default memo(() => {
       </div>
       <div className="right">
         <SyncButton />
+        <Share />
         <Space>
           <Config
             renderButton={(openDrawer) => (

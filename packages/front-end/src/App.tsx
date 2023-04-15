@@ -6,14 +6,25 @@ import { useDataState } from "./store/useDataState";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { Extension } from "./pages/Extension";
 import { useIncrementalUpdateState } from "./store/useIncrementalUpdateState";
+import { useOauthState } from "./store/useOauthState";
+import { HttpHelper } from "./utils";
 
 function App() {
   const [loading, setLoading] = useState(true);
 
-  const loadLocalConfig = useConfigState((state) => state.loadLocalConfig);
+  const { loadLocalConfig, config } = useConfigState((state) => ({
+    loadLocalConfig: state.loadLocalConfig,
+    config: state.config,
+  }));
   const loadLocalData = useDataState((state) => state.loadLocalData);
   const loadLocalIncrementalData = useIncrementalUpdateState(
     (state) => state.loadFromLocal
+  );
+  const { loadLocalOauthData, loadRemoteOauthData } = useOauthState(
+    (state) => ({
+      loadLocalOauthData: state.loadLocalData,
+      loadRemoteOauthData: state.loadRemoteData,
+    })
   );
 
   useEffect(() => {
@@ -21,11 +32,18 @@ function App() {
       loadLocalConfig(),
       loadLocalData(),
       loadLocalIncrementalData(),
+      loadLocalOauthData(),
     ];
     Promise.all(loadPromises).then(() => {
       setLoading(false);
     });
   }, []);
+
+  useEffect(() => {
+    if (config.backendURL) {
+      loadRemoteOauthData(new HttpHelper(config));
+    }
+  }, [config.backendURL]);
 
   useLayoutEffect(() => {
     document.body.setAttribute("arco-theme", "dark");

@@ -11,7 +11,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import { useStorage } from "../hooks";
 import { ColorPicker } from "./ColorPicker";
-import { Tag } from "./Tag";
+import { TagInfo } from "./TagInfo";
 
 type Props = {
   bookmarkId: ID;
@@ -91,7 +91,7 @@ export function AddTag({ bookmarkId, onSave }: Props) {
   const renderTitle = (props: any) => {
     const { _key: id } = props;
     const tag = selectHelper.selectTag(id);
-    return <Tag key={id} tag={tag!}></Tag>;
+    return <TagInfo key={id} tag={tag!}></TagInfo>;
   };
 
   const renderTag = (props: any) => {
@@ -109,7 +109,7 @@ export function AddTag({ bookmarkId, onSave }: Props) {
 
     return (
       <AcroTag closable onClose={handleClose} style={{ margin: 5 }}>
-        <Tag key={id} tag={tag!}></Tag>
+        <TagInfo key={id} tag={tag!}></TagInfo>
       </AcroTag>
     );
   };

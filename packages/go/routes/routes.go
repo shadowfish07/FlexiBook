@@ -12,7 +12,8 @@ func RegisterRoutes(websiteController *controllers.WebsiteController,
 	bookmarkController *controllers.BookmarkController,
 	syncController *controllers.SyncController,
 	configController *controllers.ConfigController,
-	authService *services.AuthService) *gin.Engine {
+	authService *services.AuthService,
+	authController *controllers.AuthController) *gin.Engine {
 	router := gin.Default()
 	router.Use(middleware.RequestLoggerMiddleware())
 	router.Use(middleware.CORSMiddleware())
@@ -30,6 +31,14 @@ func RegisterRoutes(websiteController *controllers.WebsiteController,
 	router.POST("/sync/init", syncController.Init)
 
 	router.POST("/config", configController.Update)
+
+	router.GET("/auth/oauth-data", authController.GetAllOauthData)
+
+	router.POST("/auth/invitation", authController.AddInvitation)
+	router.PUT("/auth/invitation", authController.UpdateInvitation)
+	router.DELETE("/auth/invitation/:id", authController.DeleteInvitation)
+
+	router.POST("/invitation/activate/:id", authController.ActivateInvitation)
 
 	return router
 }

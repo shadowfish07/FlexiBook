@@ -22,7 +22,7 @@ const StyledTag = styled.div<{ color: string }>`
   }
 `;
 
-export const Tag = ({ tag, onClick }: Props) => {
+export const TagInfo = ({ tag, onClick }: Props) => {
   return (
     <StyledTag color={tag.color} onClick={() => onClick && onClick(tag)}>
       <span className="color" />

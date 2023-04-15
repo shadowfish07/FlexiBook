@@ -20,6 +20,7 @@ var controllerSet = wire.NewSet(
 	controllers.NewSystemController,
 	controllers.NewWebsiteController,
 	controllers.NewConfigController,
+	controllers.NewAuthController,
 )
 
 var repositorySet = wire.NewSet(
@@ -30,6 +31,7 @@ var repositorySet = wire.NewSet(
 	repositories.NewSyncRepository,
 	repositories.NewConfigRepository,
 	repositories.NewOauthRepository,
+	repositories.NewInvitationRepository,
 )
 
 var serviceSet = wire.NewSet(
@@ -44,6 +46,7 @@ var serviceSet = wire.NewSet(
 	services.NewSyncService,
 	services.NewConfigService,
 	services.NewAuthService,
+	services.NewInvitationService,
 )
 
 var storageSet = wire.NewSet(

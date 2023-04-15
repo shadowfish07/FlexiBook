@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { HttpHelper } from "../utils";
 
 const IS_HAS_NOT_EVER_SYNCED = 0;
 

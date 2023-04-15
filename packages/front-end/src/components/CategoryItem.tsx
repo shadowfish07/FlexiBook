@@ -2,12 +2,13 @@ import styled from "styled-components";
 import ReactDOM from "react-dom";
 import { useRef, useState } from "react";
 import { EmojiPicker } from "./EmojiPicker";
-import { Button } from "@arco-design/web-react";
+import { Button, Dropdown, Menu, Message } from "@arco-design/web-react";
 import { useConfig } from "../hooks";
 import { IconPlus } from "@arco-design/web-react/icon";
 import { DEFAULT_CATEGORY_ID } from "../constants";
 import { CaretDown } from "./CaretDown";
 import { InPlaceInput } from "./InPlaceInput";
+import { isString } from "lodash";
 
 const StyledCategoryItem = styled.div`
   display: inline-flex;
@@ -81,7 +82,7 @@ export const CategoryItem = ({
 
   const itemRef = useRef<null | HTMLDivElement>(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const { config, updateConfigByKey } = useConfig();
+  const { config, updateConfigByKey, httpHelper } = useConfig();
   const [isFolding, setIsFolding] = useState(false);
 
   const categoryId = isDefault ? DEFAULT_CATEGORY_ID : category.id;
@@ -128,42 +129,69 @@ export const CategoryItem = ({
     onToggleFold!();
   };
 
+  const handleShare = async (e: MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await httpHelper.addShareInvitation({
+        entity: "categories",
+        entityId: categoryId,
+        allowEdit: false,
+      });
+    } catch (error) {
+      if (isString(error)) {
+        Message.error(error);
+      }
+    }
+  };
+
   return (
     <>
-      <StyledCategoryItem ref={itemRef} data-id={categoryId}>
-        <div className="left">
-          <CaretDown
-            isFolding={isFolding}
-            isParent={isParent}
-            onToggleFold={handleToggleFold}
-          />
-
-          <span className={`icon`} onClick={handleClickEmoji}>
-            {category.icon}
-          </span>
-
-          <InPlaceInput
-            text={category.title}
-            placeholder={isNew ? DEFAULT_NEW_CATEGORY_TITLE : "输入分类名"}
-            isReadOnly={isDefault}
-            defaultStatus={isNew}
-            onSave={handleSaveTitle}
-            textClassName="title"
-          />
-        </div>
-
-        <div className="right">
-          {showAddSubCategoryButton() && (
-            <Button
-              type="text"
-              size="mini"
-              onClick={handleAddSubCategory}
-              className={"add-sub-button"}
-              icon={<IconPlus />}
+      <Dropdown
+        trigger={"contextMenu"}
+        position="bl"
+        droplist={
+          <Menu>
+            <Menu.Item onClick={handleShare} key="1" disabled={isDefault}>
+              分享
+            </Menu.Item>
+          </Menu>
+        }
+      >
+        <StyledCategoryItem ref={itemRef} data-id={categoryId}>
+          <div className="left">
+            <CaretDown
+              isFolding={isFolding}
+              isParent={isParent}
+              onToggleFold={handleToggleFold}
             />
-          )}
-        </div>
-      </StyledCategoryItem>
+
+            <span className={`icon`} onClick={handleClickEmoji}>
+              {category.icon}
+            </span>
+
+            <InPlaceInput
+              text={category.title}
+              placeholder={isNew ? DEFAULT_NEW_CATEGORY_TITLE : "输入分类名"}
+              isReadOnly={isDefault}
+              defaultStatus={isNew}
+              onSave={handleSaveTitle}
+              textClassName="title"
+            />
+          </div>
+
+          <div className="right">
+            {showAddSubCategoryButton() && (
+              <Button
+                type="text"
+                size="mini"
+                onClick={handleAddSubCategory}
+                className={"add-sub-button"}
+                icon={<IconPlus />}
+              />
+            )}
+          </div>
+        </StyledCategoryItem>
+      </Dropdown>
       {showEmojiPicker &&
         ReactDOM.createPortal(
           <EmojiPicker
