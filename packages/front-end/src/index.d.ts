@@ -131,7 +131,7 @@ declare type Invitation = {
 };
 
 declare type Permission = {
-  entity: EntitySupportedByBackend;
+  entity: "categories" | "tags";
   entityId: string;
   allowEdit: boolean;
   invitationId: string;

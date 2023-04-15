@@ -77,12 +77,6 @@ export const useOauth = () => {
 
       function transformPermission(permission: Permission) {
         switch (permission.entity) {
-          case "bookmarks":
-            return {
-              entityType: permission.entity,
-              entity: selectHelper.selectBookmark(permission.entityId),
-              allowEdit: permission.allowEdit,
-            };
           case "tags":
             return {
               entityType: permission.entity,

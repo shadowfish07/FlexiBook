@@ -33,7 +33,7 @@ type Invitation struct {
 }
 
 type Permission struct {
-	Entity       string `json:"entity" binding:"required,oneof=bookmarks categories tags"`
+	Entity       string `json:"entity" binding:"required,oneof=categories tags"`
 	EntityId     string `json:"entityId" binding:"required"`
 	AllowEdit    bool   `json:"allowEdit" binding:"bool"`
 	InvitationId string `json:"invitationId" binding:"bool"`
