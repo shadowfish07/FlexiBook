@@ -8,6 +8,7 @@ import { Extension } from "./pages/Extension";
 import { useIncrementalUpdateState } from "./store/useIncrementalUpdateState";
 import { useOauthState } from "./store/useOauthState";
 import { HttpHelper } from "./utils";
+import { useSharedContentState } from "./store/useSharedContentState";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -26,6 +27,9 @@ function App() {
       loadRemoteOauthData: state.loadRemoteData,
     })
   );
+  const loadLocalSharedContent = useSharedContentState(
+    (state) => state.loadLocalData
+  );
 
   useEffect(() => {
     const loadPromises = [
@@ -33,6 +37,7 @@ function App() {
       loadLocalData(),
       loadLocalIncrementalData(),
       loadLocalOauthData(),
+      loadLocalSharedContent(),
     ];
     Promise.all(loadPromises).then(() => {
       setLoading(false);
@@ -40,10 +45,10 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (config.backendURL) {
+    if (config.backendURL && config.enableSync) {
       loadRemoteOauthData(new HttpHelper(config));
     }
-  }, [config.backendURL]);
+  }, [config.enableSync]);
 
   useLayoutEffect(() => {
     document.body.setAttribute("arco-theme", "dark");

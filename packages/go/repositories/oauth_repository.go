@@ -15,7 +15,7 @@ func NewOauthRepository(oauth *storage.Oauth) *OauthRepository {
 	}
 }
 
-func (or *OauthRepository) GetAll() (*models.Oauth, error) {
+func (or *OauthRepository) GetOauth() (*models.Oauth, error) {
 	oauth, err := or.oauth.Get()
 	if err != nil {
 		return nil, err
@@ -24,8 +24,17 @@ func (or *OauthRepository) GetAll() (*models.Oauth, error) {
 	return oauth, nil
 }
 
+func (or *OauthRepository) GetMonitorNickname() (string, error) {
+	oauth, err := or.GetOauth()
+	if err != nil {
+		return "", err
+	}
+
+	return oauth.Nickname, nil
+}
+
 func (or *OauthRepository) Get(clientId string) (*models.OauthItem, error) {
-	oauth, err := or.GetAll()
+	oauth, err := or.GetOauth()
 	if err != nil {
 		return nil, err
 	}
@@ -44,7 +53,7 @@ func (or *OauthRepository) Save(oauth *models.Oauth) error {
 }
 
 func (or *OauthRepository) Add(oauthItem *models.OauthItem) error {
-	oauth, err := or.GetAll()
+	oauth, err := or.GetOauth()
 	if err != nil {
 		return err
 	}
@@ -55,7 +64,7 @@ func (or *OauthRepository) Add(oauthItem *models.OauthItem) error {
 }
 
 func (or *OauthRepository) Update(oauthItem *models.OauthItem) error {
-	oauth, err := or.GetAll()
+	oauth, err := or.GetOauth()
 	if err != nil {
 		return err
 	}

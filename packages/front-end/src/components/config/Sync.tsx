@@ -18,10 +18,19 @@ export const Sync = () => {
   const handleInitSync = async () => {
     setLoading(true);
     try {
-      const newConfig = updateConfigByKey("enableSync", true);
+      const newConfig = {
+        ...config,
+        enableSync: true,
+      };
+      console.log(
+        "🚀 ~ file: Sync.tsx:22 ~ handleInitSync ~ newConfig:",
+        newConfig
+      );
       await httpHelper.initSync(newConfig);
       setIncrementalUpdateSerialNumber(1);
+      updateConfigByKey("enableSync", true);
     } catch (error) {
+      console.error(error);
       if (isString(error)) Message.error(error);
       else Message.error("接口异常");
     } finally {
@@ -56,7 +65,7 @@ export const Sync = () => {
         checked={config.enableSync}
       />
     );
-  }, [incrementalUpdateSerialNumber, loading, config.enableSync]);
+  }, [incrementalUpdateSerialNumber, loading, config]);
 
   return (
     <FormItem label="服务器同步">

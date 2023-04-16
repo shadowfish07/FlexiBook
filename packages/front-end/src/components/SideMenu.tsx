@@ -10,6 +10,11 @@ import MenuItem from "./MenuItem";
 import { SubMenu } from "./SubMenu";
 import { DEFAULT_CATEGORY_KEY } from "../constants";
 import { getTimestamp } from "../utils";
+import { AddSharedContentDialog } from "./AddSharedContentDialog";
+import { useSharedContent } from "../hooks/useSharedContent";
+import { SharedContentSubMenu } from "./SharedContentSubMenu";
+import { SharedContentItem } from "./SharedContentItem";
+import md5 from "md5";
 
 const GlobalMenuStyle = createGlobalStyle`
   /* .arco-menu-light .arco-menu-inline-header.arco-menu-selected {
@@ -42,6 +47,8 @@ export const SideMenu = () => {
   } = useStorage({
     useKey: "categories",
   });
+  const { selectHelpers: sharedContentSelectHelpers, sharedContents } =
+    useSharedContent();
   const { config } = useConfig();
   const setSelect = useSideMenuState((state) => state.setSelect);
   const [openKeys, setOpenKeys] = useState<string[]>([]);
@@ -49,9 +56,16 @@ export const SideMenu = () => {
     DEFAULT_CATEGORY_KEY,
   ]);
   const [hoveringId, setHoveringId] = useState<string | null>(null);
+  const [showAddSharedContentDialog, setShowAddSharedContentDialog] =
+    useState(false);
+
+  const handleAddSharedContentDialogClose = () => {
+    setShowAddSharedContentDialog(false);
+  };
 
   const treeCategory = selectHelper.getTreeOf("categories");
   const treeTag = selectHelper.getTreeOf("tags");
+  const sharedContent = sharedContents.map((sharedContent) => {});
 
   const handleAddCategory = () => {
     const newCategory = getNewCategoryTemplate();
@@ -259,6 +273,63 @@ export const SideMenu = () => {
         </StyledSectionHeader>
 
         {getTreeNodesOf("tags", treeTag)}
+
+        <StyledSectionHeader style={{ marginTop: 20 }}>
+          <Typography.Text
+            type="secondary"
+            style={{ userSelect: "none", fontSize: 13, marginLeft: 9 }}
+          >
+            分享
+          </Typography.Text>
+          <Button
+            type="text"
+            size="mini"
+            onClick={() => setShowAddSharedContentDialog(true)}
+            icon={<IconPlus />}
+          />
+        </StyledSectionHeader>
+        <AddSharedContentDialog
+          visible={showAddSharedContentDialog}
+          onCancel={handleAddSharedContentDialogClose}
+          onOk={handleAddSharedContentDialogClose}
+        />
+
+        {sharedContents.map((sharedContent) => {
+          const handleToggleFold = () => {
+            if (openKeys.includes(`sharedContents-${sharedContent.url}`)) {
+              setOpenKeys(
+                openKeys.filter(
+                  (key) => key !== `sharedContents-${sharedContent.url}`
+                )
+              );
+            } else {
+              setOpenKeys([...openKeys, `sharedContents-${sharedContent.url}`]);
+            }
+          };
+
+          const treeCategory =
+            sharedContentSelectHelpers[sharedContent.url].getTreeOf(
+              "categories"
+            );
+          console.log(
+            "🚀 ~ file: SideMenu.tsx:314 ~ {sharedContents.map ~ treeCategory:",
+            treeCategory
+          );
+          const treeTag =
+            sharedContentSelectHelpers[sharedContent.url].getTreeOf("tags");
+
+          return (
+            <SharedContentSubMenu
+              onToggleFold={handleToggleFold}
+              sharedContent={sharedContent}
+            >
+              <>
+                {getTreeNodesOf("categories", treeCategory)}
+                {getTreeNodesOf("tags", treeTag)}
+              </>
+            </SharedContentSubMenu>
+          );
+        })}
       </Menu>
     </>
   );

@@ -40,7 +40,6 @@ type Permission struct {
 }
 
 type ActivateInvitationRequest struct {
-	Password    *string      `json:"password"`
-	Nickname    *string      `json:"nickname"`
-	Permissions []Permission `json:"permissions"`
+	Password *string `json:"password"`
+	Nickname string  `json:"nickname" binding:"required"`
 }

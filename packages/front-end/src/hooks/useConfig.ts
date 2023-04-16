@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useConfigState } from "../store/useConfigState";
 import { HttpHelper } from "../utils";
 import { useSavingState } from "../store/useSavingState";
@@ -22,6 +22,11 @@ export const useConfig = (): UseConfigReturnType => {
   const { setIsSavingLocal } = useSavingState((state) =>
     pick(state, ["setIsSavingLocal"])
   );
+  const configRef = useRef<Config>(config);
+
+  useEffect(() => {
+    configRef.current = config;
+  }, [config]);
 
   const updateConfigByKey = <T extends keyof Config>(
     key: T,
@@ -30,7 +35,7 @@ export const useConfig = (): UseConfigReturnType => {
     setIsSavingLocal(true);
 
     const newConfig: Config = {
-      ...config,
+      ...configRef.current,
       [key]: value,
     };
 

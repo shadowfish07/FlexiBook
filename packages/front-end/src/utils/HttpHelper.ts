@@ -18,24 +18,28 @@ export default class {
     return url;
   }
 
-  private getAuthHeaders(): Record<string, string> {
+  private getAuthHeaders(
+    secret = this.config.clientSecret
+  ): Record<string, string> {
     const timestamp = getTimestamp();
     return {
       "X-Client-ID": this.config.clientId,
       "X-Timestamp": String(timestamp),
-      "X-Signature": md5(
-        this.config.clientId + this.config.clientSecret + timestamp
-      ),
+      "X-Signature": md5(this.config.clientId + secret + timestamp),
     };
   }
 
   private sendRequest<T>(
     url: string,
     httpMethod: "GET" | "POST",
-    data?: unknown
+    data?: unknown,
+    options?: {
+      skipCheckingValidURL?: boolean;
+      secret?: string;
+    }
   ): Promise<T> {
     return new Promise<T>(async (resolve, reject) => {
-      if (!this.validUrl) {
+      if (!options?.skipCheckingValidURL && !this.validUrl) {
         reject(undefined);
         return;
       }
@@ -43,7 +47,7 @@ export default class {
         const result = await fetch(encodeURI(url), {
           method: httpMethod,
           body: JSON.stringify(data),
-          headers: this.getAuthHeaders(),
+          headers: this.getAuthHeaders(options?.secret),
         });
         const json = (await result.json()) as APIResult<T>;
         if (json.status === "error") {
@@ -56,6 +60,27 @@ export default class {
         reject("接口异常");
       }
     });
+  }
+
+  public async activateInvite(
+    url: string,
+    nickname: string,
+    password?: string
+  ): Promise<{
+    secret: string;
+    nickname: string;
+  }> {
+    return this.sendRequest<{ secret: string; nickname: string }>(
+      url,
+      "POST",
+      {
+        nickname,
+        password,
+      },
+      {
+        skipCheckingValidURL: true,
+      }
+    );
   }
 
   public async getOauth(): Promise<ServerOauth> {
@@ -74,7 +99,7 @@ export default class {
     allowEdit: boolean;
   }): Promise<null> {
     const id = nanoid();
-    return this.sendRequest<null>(`${this.validUrl}/invitation`, "POST", {
+    return this.sendRequest<null>(`${this.validUrl}/auth/invitation`, "POST", {
       password: invitation.password,
       usesLimit: invitation.usesLimit,
       usesUntil: invitation.usesUntil,
@@ -121,11 +146,33 @@ export default class {
     );
   }
 
-  public async initSync(config: Config): Promise<null> {
-    return this.sendRequest<null>(`${this.validUrl}/sync/init`, "POST", config);
+  public async getSharedContentRemoteUpdate(
+    baseURL: string,
+    incrementalUpdateSerialNumber: number,
+    secret: string
+  ): Promise<OperationLog[]> {
+    return this.sendRequest<OperationLog[]>(
+      `${baseURL}/sync/incremental/${incrementalUpdateSerialNumber}`,
+      "GET",
+      undefined,
+      {
+        skipCheckingValidURL: true,
+        secret,
+      }
+    );
   }
 
-  // 更改后端地址比较麻烦，这里的思路是给新老地址都尝试发一次更新请求
+  public async initSync(config: Config): Promise<null> {
+    return this.sendRequest<null>(
+      `${config.backendURL}/sync/init`,
+      "POST",
+      config,
+      {
+        skipCheckingValidURL: true,
+      }
+    );
+  }
+
   public async updateConfig(config: Config): Promise<null[]> {
     const promises: Promise<null>[] = [];
     if (config.backendURL !== this.config.backendURL && config.backendURL) {
@@ -148,7 +195,10 @@ export default class {
     if (!this.validUrl) return null;
     try {
       const response = await fetch(
-        encodeURI(`${this.validUrl}/website/icons?url=${url}`)
+        encodeURI(`${this.validUrl}/website/icons?url=${url}`),
+        {
+          headers: this.getAuthHeaders(),
+        }
       );
       if (
         response.status === 200 &&

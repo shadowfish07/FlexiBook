@@ -91,13 +91,19 @@ func (ac *AuthController) ActivateInvitation(ctx *gin.Context) {
 	_clientId, _ := ctx.Get("clientId")
 	clientId := _clientId.(string)
 
-	secret, err := ac.invitationService.Activate(id, clientId, req)
+	secret, nickname, err := ac.invitationService.Activate(id, clientId, req)
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
-	response.JSONResponse(ctx, secret)
+	response.JSONResponse(ctx, struct {
+		Secret   string `json:"secret"`
+		Nickname string `json:"nickname"`
+	}{
+		Secret:   secret,
+		Nickname: nickname,
+	})
 }
 
 func (ac *AuthController) GetAllOauthData(ctx *gin.Context) {

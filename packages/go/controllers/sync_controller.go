@@ -51,9 +51,20 @@ func (sc *SyncController) GetIncrementalUpdate(ctx *gin.Context) {
 	}
 
 	incrementalUpdate, err := sc.syncService.GetIncrementalUpdate(value)
-
 	if err != nil {
 		response.ErrorResponse(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	// 对于第三方访客，过滤出他们有权限的操作
+	if value, _ := ctx.Get("isMonitor"); value == false {
+		clientId := ctx.GetString("clientId")
+		filteredOperations, err := sc.syncService.FilterDataForGuest(clientId, &incrementalUpdate)
+		if err != nil {
+			response.ErrorResponse(ctx, http.StatusInternalServerError, err)
+			return
+		}
+		response.JSONResponse(ctx, filteredOperations)
 		return
 	}
 

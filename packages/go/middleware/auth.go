@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"errors"
+	"log"
 	"net/http"
 	"strings"
 
@@ -14,6 +15,9 @@ import (
 
 func AuthenticationMiddleware(authService *services.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		clientID := c.Request.Header.Get("X-Client-ID")
+		c.Set("clientId", clientID)
+
 		// 允许跳过认证的接口列表
 		ignoreList := []string{"/sync/init", "/invitation/activate/"}
 
@@ -25,7 +29,6 @@ func AuthenticationMiddleware(authService *services.AuthService) gin.HandlerFunc
 			}
 		}
 
-		clientID := c.Request.Header.Get("X-Client-ID")
 		timestamp := c.Request.Header.Get("X-Timestamp")
 		signature := c.Request.Header.Get("X-Signature")
 
@@ -56,7 +59,7 @@ func AuthenticationMiddleware(authService *services.AuthService) gin.HandlerFunc
 		// TODO 过滤只有管理员才能访问的接口
 		c.Set("isMonitor", isMonitor)
 
-		c.Set("clientId", clientID)
+		log.Default().Println("isMonitor: ", isMonitor)
 
 		if strings.HasPrefix(c.Request.URL.Path, "/invitation/activate/") {
 			if isMonitor {

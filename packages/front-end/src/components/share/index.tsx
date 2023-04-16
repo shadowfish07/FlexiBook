@@ -70,7 +70,7 @@ export const Share = () => {
       );
     };
 
-    const shareURL = `${config.backendURL}/invitation/${item.id}`;
+    const shareURL = `${config.backendURL}/invitation/activate/${item.id}`;
 
     return (
       <List.Item key={index} actions={actions}>

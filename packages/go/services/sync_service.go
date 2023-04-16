@@ -15,6 +15,7 @@ type SyncService struct {
 	syncRepository      *repositories.SyncRepository
 	configRepository    *repositories.ConfigRepository
 	configService       *ConfigService
+	authService         *AuthService
 }
 
 func NewSyncService(operationRepository *repositories.OperationRepository,
@@ -22,7 +23,8 @@ func NewSyncService(operationRepository *repositories.OperationRepository,
 	entity *Entity,
 	syncRepository *repositories.SyncRepository,
 	configRepository *repositories.ConfigRepository,
-	configService *ConfigService) *SyncService {
+	configService *ConfigService,
+	authService *AuthService) *SyncService {
 	return &SyncService{
 		operationRepository: operationRepository,
 		bookmarkService:     bookmarkService,
@@ -30,6 +32,7 @@ func NewSyncService(operationRepository *repositories.OperationRepository,
 		syncRepository:      syncRepository,
 		configRepository:    configRepository,
 		configService:       configService,
+		authService:         authService,
 	}
 }
 
@@ -66,6 +69,54 @@ func (ss *SyncService) AddIncrementalUpdate(operation models.Operation) (models.
 
 	ss.operationRepository.Add(operation)
 	return finalOperation, nil
+}
+
+func (ss *SyncService) FilterDataForGuest(clientId string, origin *models.OperationList) (*models.OperationList, error) {
+	clientPermission, err := ss.authService.GetOauthItem(clientId)
+	if err != nil {
+		return nil, err
+	}
+	if clientPermission == nil {
+		return nil, errors.New("client not found")
+	}
+
+	permissionMap := utils.PermissionsToMap(clientPermission.Permissions)
+	operationList := models.OperationList{}
+	for _, operation := range *origin {
+		newOperation := models.Operation{
+			Id:       operation.Id,
+			UniqueId: operation.UniqueId,
+			ClientId: operation.ClientId,
+			CreateAt: operation.CreateAt,
+			Actions:  make([]models.OperationAction, 0),
+		}
+		for _, action := range operation.Actions {
+			entityId := action.EntityId
+			stringEntityId := string(entityId)
+
+			switch action.Entity {
+			case models.OperationActionEntityCategory, models.OperationActionEntityTag:
+				if _, ok := permissionMap[stringEntityId]; ok {
+					newOperation.Actions = append(newOperation.Actions, action)
+				}
+			case models.OperationActionEntityBookmark:
+				bookmark, err := ss.bookmarkService.GetBookmark(entityId)
+				if err != nil {
+					return nil, err
+				}
+				if bookmark == nil {
+					continue
+				}
+				if _, ok := permissionMap[string(*bookmark.Category)]; ok {
+					newOperation.Actions = append(newOperation.Actions, action)
+				}
+			}
+		}
+
+		operationList = append(operationList, operation)
+	}
+
+	return &operationList, nil
 }
 
 func (ss *SyncService) Init(config *models.Config) error {

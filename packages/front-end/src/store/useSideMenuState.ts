@@ -1,6 +1,6 @@
 import create from "zustand";
 
-type SelectedType = "categories";
+type SelectedType = "categories" | "tags" | "sharedContents";
 
 type SideMenuState = {
   selectedId: string;

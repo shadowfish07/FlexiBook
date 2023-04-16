@@ -143,6 +143,18 @@ declare type InvitationUsageHistory = {
   invitationId: string;
 };
 
+/**
+ * 来自其他用户共享的数据
+ */
+declare type SharedContent = {
+  url: string;
+  secret: string;
+  nickname: string;
+  createdAt: number;
+  incrementalUpdateSerialNumber: number;
+  data: StorageData;
+};
+
 // API --------------------------------------------
 
 declare type ActivateInvitationRequest = {

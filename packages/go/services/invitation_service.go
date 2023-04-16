@@ -79,27 +79,27 @@ func (is *InvitationService) Delete(id string) error {
 	return is.invitationRepository.Delete(id)
 }
 
-func (is *InvitationService) Activate(id string, clientId string, activateInvitationRequest models.ActivateInvitationRequest) (string, error) {
+func (is *InvitationService) Activate(id string, clientId string, activateInvitationRequest models.ActivateInvitationRequest) (string, string, error) {
 	invitation, err := is.Get(id)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	err = is.CheckInvitationValid(invitation, activateInvitationRequest.Password)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	existOauthItem, err := is.authService.GetOauthItem(clientId)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
 	var secret string
 	if existOauthItem != nil {
 		secret = existOauthItem.Secret
 		// 权限合并，取并集
-		for _, invitationPermission := range activateInvitationRequest.Permissions {
+		for _, invitationPermission := range invitation.DefaultPermissions {
 			foundSame := false
 			for _, userPermission := range existOauthItem.Permissions {
 				if invitationPermission == userPermission {
@@ -116,14 +116,14 @@ func (is *InvitationService) Activate(id string, clientId string, activateInvita
 	} else {
 		newOauthItem := &models.OauthItem{
 			ClientId:    clientId,
-			Nickname:    *activateInvitationRequest.Nickname,
+			Nickname:    activateInvitationRequest.Nickname,
 			DeletedAt:   nil,
 			CreatedAt:   utils.GetTimestamp(),
-			Permissions: activateInvitationRequest.Permissions,
+			Permissions: invitation.DefaultPermissions,
 		}
 		addedOauthItem, err := is.authService.AddOauthItem(newOauthItem)
 		if err != nil {
-			return "", err
+			return "", "", err
 		}
 		secret = addedOauthItem.Secret
 	}
@@ -136,10 +136,15 @@ func (is *InvitationService) Activate(id string, clientId string, activateInvita
 
 	err = is.invitationRepository.AddUsageHistory(newInvitationUsageHistory)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	return secret, nil
+	nickname, err := is.oauthRepository.GetMonitorNickname()
+	if err != nil {
+		return "", "", err
+	}
+
+	return secret, nickname, nil
 }
 
 func (is *InvitationService) CheckInvitationValid(invitation *models.Invitation, password *string) error {
@@ -151,11 +156,11 @@ func (is *InvitationService) CheckInvitationValid(invitation *models.Invitation,
 		return errors.New("Invitation is not valid")
 	}
 
-	if invitation.UsesUntil < time.Now().UnixMilli() {
+	if invitation.UsesUntil != 0 && invitation.UsesUntil < time.Now().UnixMilli() {
 		return errors.New("Invitation is expired")
 	}
 
-	if count, _ := is.GetInvitationUsedCount(invitation.Id); invitation.UsesLimit <= int64(count) {
+	if count, _ := is.GetInvitationUsedCount(invitation.Id); invitation.UsesLimit != 0 && invitation.UsesLimit <= int64(count) {
 		return errors.New("Invitation is used out")
 	}
 

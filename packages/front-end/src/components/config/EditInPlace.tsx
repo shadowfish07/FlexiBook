@@ -3,6 +3,7 @@ import { useState } from "react";
 import styled from "styled-components";
 
 type Props = {
+  defaultEditMode?: boolean;
   renderDefault: () => JSX.Element;
   renderEdit: () => JSX.Element;
   renderConfirmButton: (resolve: () => void) => JSX.Element;
@@ -25,11 +26,12 @@ const StyledDefaultContainer = styled.div`
 `;
 
 export const EditInPlace = ({
+  defaultEditMode,
   renderDefault,
   renderEdit,
   renderConfirmButton,
 }: Props) => {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] = useState(defaultEditMode);
   const resolve = () => setIsEditing(false);
 
   const Edit = () => {

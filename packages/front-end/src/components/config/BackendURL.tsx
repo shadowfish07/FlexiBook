@@ -70,6 +70,7 @@ export const BackendURL = () => {
       ]}
     >
       <EditInPlace
+        defaultEditMode={!config.backendURL}
         renderDefault={Default}
         renderEdit={Edit}
         renderConfirmButton={confirmButton}

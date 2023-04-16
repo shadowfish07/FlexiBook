@@ -91,5 +91,5 @@ func (sa *AuthService) GetOauthItem(clientId string) (*models.OauthItem, error) 
 }
 
 func (sa *AuthService) GetAllOauth() (*models.Oauth, error) {
-	return sa.oauthRepository.GetAll()
+	return sa.oauthRepository.GetOauth()
 }
