@@ -65,7 +65,6 @@ export const SideMenu = () => {
 
   const treeCategory = selectHelper.getTreeOf("categories");
   const treeTag = selectHelper.getTreeOf("tags");
-  const sharedContent = sharedContents.map((sharedContent) => {});
 
   const handleAddCategory = () => {
     const newCategory = getNewCategoryTemplate();
@@ -311,10 +310,6 @@ export const SideMenu = () => {
             sharedContentSelectHelpers[sharedContent.url].getTreeOf(
               "categories"
             );
-          console.log(
-            "🚀 ~ file: SideMenu.tsx:314 ~ {sharedContents.map ~ treeCategory:",
-            treeCategory
-          );
           const treeTag =
             sharedContentSelectHelpers[sharedContent.url].getTreeOf("tags");
 

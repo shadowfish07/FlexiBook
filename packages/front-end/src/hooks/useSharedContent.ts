@@ -40,6 +40,8 @@ export const useSharedContent = (url?: string): UseSharedContentReturnType => {
     ]);
   };
 
+  // TODO: updateSharedContent
+
   const setStorageData = async (data: StorageData) => {
     if (!url) {
       throw new Error("url is required when using useSharedContent");
