@@ -114,7 +114,7 @@ export const AddSharedContentDialog = ({ visible, onCancel, onOk }: Props) => {
 
   return (
     <Modal
-      title="Add User"
+      title="导入分享"
       visible={visible}
       onOk={handleSubmit}
       confirmLoading={confirmLoading}
