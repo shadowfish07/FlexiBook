@@ -113,7 +113,7 @@ func (ss *SyncService) FilterDataForGuest(clientId string, origin *models.Operat
 			}
 		}
 
-		operationList = append(operationList, operation)
+		operationList = append(operationList, newOperation)
 	}
 
 	return &operationList, nil
