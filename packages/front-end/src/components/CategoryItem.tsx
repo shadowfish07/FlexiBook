@@ -9,6 +9,7 @@ import { DEFAULT_CATEGORY_ID } from "../constants";
 import { CaretDown } from "./CaretDown";
 import { InPlaceInput } from "./InPlaceInput";
 import { isString } from "lodash";
+import { RightClickContentMenu } from "./rightClickContentMenu";
 
 const StyledCategoryItem = styled.div`
   display: inline-flex;
@@ -146,16 +147,10 @@ export const CategoryItem = ({
 
   return (
     <>
-      <Dropdown
-        trigger={"contextMenu"}
-        position="bl"
-        droplist={
-          <Menu>
-            <Menu.Item onClick={handleShare} key="1" disabled={isDefault}>
-              分享
-            </Menu.Item>
-          </Menu>
-        }
+      <RightClickContentMenu
+        entityId={categoryId}
+        entityType="categories"
+        isShareDisabled={isDefault}
       >
         <StyledCategoryItem ref={itemRef} data-id={categoryId}>
           <div className="left">
@@ -191,7 +186,7 @@ export const CategoryItem = ({
             )}
           </div>
         </StyledCategoryItem>
-      </Dropdown>
+      </RightClickContentMenu>
       {showEmojiPicker &&
         ReactDOM.createPortal(
           <EmojiPicker

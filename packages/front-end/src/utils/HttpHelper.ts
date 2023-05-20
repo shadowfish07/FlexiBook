@@ -97,9 +97,9 @@ export default class {
     entity: EntitySupportedByBackend;
     entityId: string;
     allowEdit: boolean;
-  }): Promise<null> {
+  }): Promise<string> {
     const id = nanoid();
-    return this.sendRequest<null>(`${this.validUrl}/auth/invitation`, "POST", {
+    await this.sendRequest<null>(`${this.validUrl}/auth/invitation`, "POST", {
       password: invitation.password,
       usesLimit: invitation.usesLimit,
       usesUntil: invitation.usesUntil,
@@ -114,6 +114,7 @@ export default class {
         },
       ],
     });
+    return id;
   }
 
   public async getMetaOfWebsite(
