@@ -3,6 +3,7 @@ import {
   Drawer,
   List,
   Space,
+  Tooltip,
   Typography,
 } from "@arco-design/web-react";
 import {
@@ -11,20 +12,20 @@ import {
   IconUser,
 } from "@arco-design/web-react/icon";
 import { ReactNode, useState } from "react";
-import {
-  ParsedInvitation,
-  UseOauthReturnType,
-  useOauth,
-} from "../../hooks/useOauth";
+import { ParsedInvitation, useOauth } from "../../hooks/useOauth";
 import { CategoryInfo } from "../CategoryInfo";
 import { TagInfo } from "../TagInfo";
-import { useConfig } from "../../hooks";
+import styled from "styled-components";
+
+const StyledShareList = styled.div`
+  .arco-list-item-action {
+    align-self: flex-start;
+  }
+`;
 
 export const Share = () => {
-  const { config } = useConfig();
   const [visible, setVisible] = useState(false);
-  const { invitations } = useOauth();
-  console.log("🚀 ~ file: index.tsx:9 ~ Share ~ invitations:", invitations);
+  const { invitations, getShareURL } = useOauth();
   const openDrawer = () => {
     setVisible(true);
   };
@@ -62,7 +63,7 @@ export const Share = () => {
             return (
               <Space>
                 <IconUser />
-                <Typography.Text>{nickname || clientId}</Typography.Text>;
+                <Typography.Text>{nickname || clientId}</Typography.Text>
               </Space>
             );
           })}
@@ -70,14 +71,32 @@ export const Share = () => {
       );
     };
 
-    const shareURL = `${config.backendURL}/invitation/activate/${item.id}`;
+    const shareURL = getShareURL(item.id);
 
     return (
       <List.Item key={index} actions={actions}>
         {renderEntities()}
-        <Typography.Text type="secondary" copyable style={{ display: "block" }}>
-          {shareURL}
-        </Typography.Text>
+        <Tooltip content={shareURL}>
+          <Typography.Text
+            type="secondary"
+            copyable
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >
+            <span
+              style={{
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+              }}
+            >
+              {shareURL}
+            </span>
+          </Typography.Text>
+        </Tooltip>
+
         {item.users.length > 0 && (
           <div style={{ marginTop: 20 }}>
             <Typography.Text type="secondary">共享给</Typography.Text>
@@ -101,11 +120,13 @@ export const Share = () => {
         unmountOnExit
         footer={null}
       >
-        <List
-          header="我的分享"
-          dataSource={invitations}
-          render={renderInvitation.bind(null, [<IconDelete />])}
-        />
+        <StyledShareList>
+          <List
+            header="我的分享"
+            dataSource={invitations}
+            render={renderInvitation.bind(null, [<IconDelete />])}
+          />
+        </StyledShareList>
       </Drawer>
     </>
   );

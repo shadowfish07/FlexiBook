@@ -20,6 +20,9 @@ type Props = {
 export const SharedContentItem = ({ shareContent, onToggleFold }: Props) => {
   const [isFolding, setIsFolding] = useState(false);
 
+  const displayCaretDown =
+    shareContent.data.categories.size > 0 || shareContent.data.tags.size > 0;
+
   const handleToggleFold = () => {
     onToggleFold();
   };
@@ -28,7 +31,7 @@ export const SharedContentItem = ({ shareContent, onToggleFold }: Props) => {
     <StyledShareContentItem>
       <CaretDown
         isFolding={isFolding}
-        isParent={true}
+        isParent={displayCaretDown}
         onToggleFold={handleToggleFold}
       />
 

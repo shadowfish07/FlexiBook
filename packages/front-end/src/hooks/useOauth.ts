@@ -1,6 +1,7 @@
 import { omit } from "lodash";
 import { useOauthState } from "../store/useOauthState";
 import { useStorage } from "./useStorage";
+import { useConfig } from "./useConfig";
 
 type EntityPermission =
   | {
@@ -30,15 +31,20 @@ export type ParsedInvitation = Exclude<Invitation, "defaultPermissions"> & {
 
 export type UseOauthReturnType = {
   invitations: ParsedInvitation[];
+  loadRemoteData: () => Promise<void>;
+  findInvitation: (id: ID) => ParsedInvitation | undefined;
+  getShareURL: (shareId: string) => string;
 };
 
-export const useOauth = () => {
+export const useOauth = (): UseOauthReturnType => {
   const {
     oauthItems,
     invitations: originInvitations,
     invitationUsageHistories,
     nickname,
+    loadRemoteData: originLoadRemoteData,
   } = useOauthState();
+  const { config, httpHelper } = useConfig();
   const { selectHelper } = useStorage();
 
   const invitations = originInvitations
@@ -93,7 +99,23 @@ export const useOauth = () => {
             throw new Error("unknown entity type");
         }
       }
-    });
+    }) as ParsedInvitation[];
 
-  return { invitations };
+  const loadRemoteData = async () => {
+    return originLoadRemoteData(httpHelper);
+  };
+
+  const findInvitation = (entityId: ID): ParsedInvitation | undefined => {
+    return invitations.find((invitation) =>
+      invitation.permissions.some(
+        (permission) => permission.entity?.id === entityId
+      )
+    );
+  };
+
+  const getShareURL = (shareId: string) => {
+    return `${config.backendURL}/invitation/activate/${shareId}`;
+  };
+
+  return { invitations, loadRemoteData, findInvitation, getShareURL };
 };
