@@ -32,6 +32,18 @@ export const useSharedContent = (): UseSharedContentReturnType => {
   const addSharedContent = (
     newSharedContent: Omit<SharedContent, "createdAt">
   ) => {
+    const existedSharedContentIndex = sharedContents.findIndex(
+      (sharedContent) => sharedContent.secret === newSharedContent.secret
+    );
+
+    if (existedSharedContentIndex !== -1) {
+      sharedContents[existedSharedContentIndex] = {
+        ...newSharedContent,
+        createdAt: getTimestamp(),
+      };
+      return;
+    }
+
     writeLocalData([
       ...sharedContents,
       { ...newSharedContent, createdAt: getTimestamp() },

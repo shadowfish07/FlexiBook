@@ -147,6 +147,10 @@ declare type InvitationUsageHistory = {
  * 来自其他用户共享的数据
  */
 declare type SharedContent = {
+  /**
+   * 如果导入了来自同一个用户的多个分享，secret相同，url会被替换成最后一次的分享链接
+   * 因此url基本无用，被分享方并不知道一个url对应什么分享内容，只知道分享方总共对自己分享了哪些内容
+   */
   url: string;
   secret: string;
   nickname: string;

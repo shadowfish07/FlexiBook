@@ -93,10 +93,6 @@ export const AddSharedContentDialog = ({ visible, onCancel, onOk }: Props) => {
 
         return resultData;
       })();
-      console.log(
-        "🚀 ~ file: AddSharedContentDialog.tsx:49 ~ handleSubmit ~ sharedContentWithData:",
-        sharedContentWithData
-      );
 
       addSharedContent(sharedContentWithData);
 
