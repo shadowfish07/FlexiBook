@@ -56,6 +56,8 @@ export const useStorage = <T extends keyof StorageData>({
   const { config, httpHelper } = useConfig();
   const { incrementalUpdateSerialNumber, setIncrementalUpdateSerialNumber } =
     useIncrementalUpdateState();
+
+  // FIXME 貌似完全可以改成 batchSyncReceiver 随data变化而重新生成实例，不需要传入ref
   const batchSyncReceiver = new BatchSyncReceiver(
     dataRef,
     setData,

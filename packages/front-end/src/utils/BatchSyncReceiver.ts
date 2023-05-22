@@ -13,6 +13,8 @@ export class BatchSyncReceiver {
   }
 
   private processSyncing(operationLog: OperationLog[]) {
+    if (operationLog.length === 0) return;
+
     this.setIncrementalUpdateSerialNumber(
       operationLog[operationLog.length - 1].id
     );

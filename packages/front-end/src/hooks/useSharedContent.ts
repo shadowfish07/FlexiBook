@@ -14,22 +14,20 @@ export type UseSharedContentReturnType = {
   addSharedContent: (
     newSharedContent: Omit<SharedContent, "createdAt">
   ) => void;
-  batchSyncReceiver: BatchSyncReceiver;
   selectHelpers: Record<SharedContentURL, SelectHelper>;
+  updateSharedContent: (url: string) => Promise<{
+    uploadCount: number;
+    downloadCount: number;
+  }>;
 };
 
-export const useSharedContent = (url?: string): UseSharedContentReturnType => {
+export const useSharedContent = (): UseSharedContentReturnType => {
   const { sharedContents, writeLocalData, getSharedContent } =
     useSharedContentState();
-  const dataRef = useRef<StorageData>(getSharedContent(url || "")?.data!);
   const { isSavingLocal, setIsSavingLocal } = useSavingState((state) =>
     pick(state, ["isSavingLocal", "setIsSavingLocal"])
   );
-  const { config } = useConfig();
-
-  useEffect(() => {
-    dataRef.current = getSharedContent(url || "")?.data!;
-  }, [sharedContents]);
+  const { config, httpHelper } = useConfig();
 
   const addSharedContent = (
     newSharedContent: Omit<SharedContent, "createdAt">
@@ -40,50 +38,73 @@ export const useSharedContent = (url?: string): UseSharedContentReturnType => {
     ]);
   };
 
-  // TODO: updateSharedContent
-
-  const setStorageData = async (data: StorageData) => {
-    if (!url) {
-      throw new Error("url is required when using useSharedContent");
+  const updateSharedContent = async (
+    url: string
+  ): Promise<{
+    uploadCount: number;
+    downloadCount: number;
+  }> => {
+    const sharedContent = getSharedContent(url);
+    if (!sharedContent) {
+      throw new Error("sharedContent not found");
     }
-    const index = sharedContents.findIndex((item) => item.url === url);
-    sharedContents[index] = {
-      ...sharedContents[index],
-      data,
+
+    const content = await httpHelper.getSharedContentRemoteUpdate(
+      new URL(url).origin,
+      sharedContent!.incrementalUpdateSerialNumber,
+      sharedContent!.secret
+    );
+
+    const setStorageData = async (data: StorageData) => {
+      if (!url) {
+        throw new Error("url is required when using useSharedContent");
+      }
+      const index = sharedContents.findIndex((item) => item.url === url);
+      sharedContents[index] = {
+        ...sharedContents[index],
+        data,
+      };
+      setIsSavingLocal(true);
+      try {
+        await writeLocalData(sharedContents);
+      } catch (error) {
+      } finally {
+        setIsSavingLocal(false);
+      }
     };
-    setIsSavingLocal(true);
-    try {
-      await writeLocalData(sharedContents);
-    } catch (error) {
-    } finally {
-      setIsSavingLocal(false);
-    }
-  };
 
-  const setIncrementalUpdateSerialNumber = async (serialNumber: number) => {
-    if (!url) {
-      throw new Error("url is required when using useSharedContent");
-    }
-    const index = sharedContents.findIndex((item) => item.url === url);
-    sharedContents[index] = {
-      ...sharedContents[index],
-      incrementalUpdateSerialNumber: serialNumber,
+    const setIncrementalUpdateSerialNumber = async (serialNumber: number) => {
+      if (!url) {
+        throw new Error("url is required when using useSharedContent");
+      }
+      const index = sharedContents.findIndex((item) => item.url === url);
+      sharedContents[index] = {
+        ...sharedContents[index],
+        incrementalUpdateSerialNumber: serialNumber,
+      };
+      setIsSavingLocal(true);
+      try {
+        await writeLocalData(sharedContents);
+      } catch (error) {
+      } finally {
+        setIsSavingLocal(false);
+      }
     };
-    setIsSavingLocal(true);
-    try {
-      await writeLocalData(sharedContents);
-    } catch (error) {
-    } finally {
-      setIsSavingLocal(false);
-    }
-  };
 
-  const batchSyncReceiver = new BatchSyncReceiver(
-    dataRef,
-    setStorageData,
-    setIncrementalUpdateSerialNumber,
-    setIsSavingLocal
-  );
+    const batchSyncReceiver = new BatchSyncReceiver(
+      { current: sharedContent.data },
+      setStorageData,
+      setIncrementalUpdateSerialNumber,
+      setIsSavingLocal
+    );
+
+    batchSyncReceiver.syncLocalData(content);
+
+    return {
+      uploadCount: 0,
+      downloadCount: content.length,
+    };
+  };
 
   const selectHelpers = sharedContents.reduce((prev, curr) => {
     return {
@@ -102,8 +123,8 @@ export const useSharedContent = (url?: string): UseSharedContentReturnType => {
   return {
     sharedContents,
     addSharedContent,
-    batchSyncReceiver,
     selectHelpers,
     sharedContentMap,
+    updateSharedContent,
   };
 };

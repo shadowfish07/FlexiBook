@@ -14,6 +14,7 @@ export default () => {
     state.selectedId,
     state.selectedType,
   ]);
+
   console.log(
     "🚀 ~ file: Content.tsx:17 ~ selectedId, selectedType:",
     selectedId,
