@@ -115,6 +115,7 @@ export const AddSharedContentDialog = ({ visible, onCancel, onOk }: Props) => {
       onOk={handleSubmit}
       confirmLoading={confirmLoading}
       onCancel={onCancel}
+      unmountOnExit
     >
       <Form form={form}>
         <Form.Item label="分享链接" field="url" rules={[{ required: true }]}>
