@@ -41,6 +41,7 @@ export const useSharedContent = (): UseSharedContentReturnType => {
         ...newSharedContent,
         createdAt: getTimestamp(),
       };
+      writeLocalData(sharedContents);
       return;
     }
 
