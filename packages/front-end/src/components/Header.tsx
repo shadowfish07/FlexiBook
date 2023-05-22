@@ -21,8 +21,6 @@ export default memo(() => {
     setSearchText(value);
   };
 
-  const handleClickShareButton = () => {};
-
   return (
     <Header
       style={{
@@ -32,6 +30,8 @@ export default memo(() => {
         paddingTop: 10,
         paddingLeft: 10,
         paddingRight: 10,
+        position: "sticky",
+        top: 0,
       }}
     >
       {/* <div className="left">{isSavingLocal && <span>保存中(本地)</span>}</div> */}

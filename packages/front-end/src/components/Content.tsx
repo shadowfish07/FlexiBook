@@ -6,7 +6,7 @@ import { Bookmark } from "./Bookmark";
 import { pick } from "lodash";
 import { useHeaderState } from "../store/useHeaderState";
 import { useSharedContent } from "../hooks/useSharedContent";
-
+import { Scrollbars } from "react-custom-scrollbars";
 export default () => {
   const { data: bookmarks } = useStorage({ useKey: "bookmarks" });
   const { sharedContentMap } = useSharedContent();
@@ -59,13 +59,17 @@ export default () => {
 
   return (
     <Content style={{ padding: 10 }}>
-      {filteredBookmarks.length === 0 ? (
-        <Empty description="还没有书签，现在开始慢慢积累吧~" />
-      ) : (
-        filteredBookmarks
-          .sort((a, b) => b.createdAt - a.createdAt)
-          .map((bookmark) => <Bookmark key={bookmark.id} bookmark={bookmark} />)
-      )}
+      <Scrollbars autoHide style={{ height: "100%" }}>
+        {filteredBookmarks.length === 0 ? (
+          <Empty description="还没有书签，现在开始慢慢积累吧~" />
+        ) : (
+          filteredBookmarks
+            .sort((a, b) => b.createdAt - a.createdAt)
+            .map((bookmark) => (
+              <Bookmark key={bookmark.id} bookmark={bookmark} />
+            ))
+        )}
+      </Scrollbars>
     </Content>
   );
 };
