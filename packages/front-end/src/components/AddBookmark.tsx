@@ -16,6 +16,7 @@ import { DEFAULT_CATEGORY_ID } from "../constants";
 import { useConfig, useStorage } from "../hooks";
 import { useBookmarkLoadState } from "../store/useBookmarkLoadState";
 import { getTimestamp, saveBlob } from "../utils";
+import { useSideMenuState } from "../store/useSideMenuState";
 
 const StyledContent = styled.div`
   .footer {
@@ -36,17 +37,26 @@ export const AddBookmark = ({ fromExtension, onSave }: Props) => {
   const { updateRecord, updateField, selectHelper } = useStorage({
     useKey: "bookmarks",
   });
+  const [selectedId, selectedType] = useSideMenuState((state) => [
+    state.selectedId,
+    state.selectedType,
+  ]);
   const [addLoadingBookmarks, removeLoadingBookmarks] = useBookmarkLoadState(
     (state) => [state.addLoadingBookmarks, state.removeLoadingBookmarks]
   );
+
+  function getDefaultCategoryId() {
+    return selectedType === "categories" ? selectedId : DEFAULT_CATEGORY_ID;
+  }
+
   const [selectedCategory, setSelectedCategory] = useState<{
     label: React.ReactNode;
     value: string;
     disabled?: boolean | undefined;
   }>({
-    value: DEFAULT_CATEGORY_ID,
+    value: getDefaultCategoryId(),
     label: (
-      <span>{selectHelper.selectCategory(DEFAULT_CATEGORY_ID)?.title}</span>
+      <span>{selectHelper.selectCategory(getDefaultCategoryId())?.title}</span>
     ),
   });
 
